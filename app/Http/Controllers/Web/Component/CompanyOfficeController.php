@@ -76,4 +76,14 @@ class CompanyOfficeController extends Controller
 
         return success(CompanyOfficeParser::first($companyOfficeDepartment));
     }
+    
+    public function getDepartmentMappings(Request $request){
+        $companyOfficeDepartment = CompanyOffice::getOrPaginate($request);
+        
+        if (!$companyOfficeDepartment) {
+            errCompanyOfficeNotFound();
+        }
+
+        return success(CompanyOfficeParser::get($companyOfficeDepartment));
+    } 
 }

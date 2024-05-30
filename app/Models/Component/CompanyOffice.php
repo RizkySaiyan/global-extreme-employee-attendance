@@ -26,4 +26,14 @@ class CompanyOffice extends BaseModel
     public function departments(){
         return $this->belongsToMany(Department::class, 'company_office_departments','companyOfficeId','departmentId');
     }
+
+    /** FUNCTION */
+
+    //override delete function to delete all record CompanyOfficeDepartment 
+    public function delete(){
+            
+        $this->officeDepartments()->delete();
+
+        return parent::delete();
+    }
 }
