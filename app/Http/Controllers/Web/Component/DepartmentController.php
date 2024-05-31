@@ -10,13 +10,11 @@ use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-    //
     public function get(Request $request){
         $department = Department::getOrPaginate($request);
 
         return success($department);
     }
-
 
     public function create(ComponentRequest $request){
         
@@ -37,7 +35,6 @@ class DepartmentController extends Controller
 
         return $algo->update($department, $request);
     }
-
 
     public function delete($id){
 

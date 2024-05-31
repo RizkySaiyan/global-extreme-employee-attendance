@@ -16,20 +16,15 @@ class CompanyOfficeAlgo{
 
         try{
             $mapDepartment = DB::transaction(function() use($model, $request){
-
-                //check CompanyOffice has department
-                $checkDepartment = CompanyOfficeDepartment::where('companyOfficeId',$model->id)
-                ->where('departmentId',$request->departmentId);
-
-                if($checkDepartment->exists()){
-                    errCompanyOfficeHasDepartment();
+                foreach($request->departmentIds as $departmentId){
+                    $map = CompanyOfficeDepartment::updateOrCreate([
+                        'companyOfficeId' =>$model->id,
+                        'departmentId' => $departmentId
+                    ],[
+                        'companyOfficeId' => $model->id,
+                        'departmentId' =>$departmentId
+                    ]);
                 }
-
-                $map = CompanyOfficeDepartment::create([
-                    'companyOfficeId' => $model->id,
-                    'departmentId' =>$request->departmentId
-                ]);
-
                 $map->setActivityPropertyAttributes(ActivityAction::CREATE)
                 ->saveActivity("Mapping company office with department $map->id, companyId : [$map->companyOfficeId]");
     

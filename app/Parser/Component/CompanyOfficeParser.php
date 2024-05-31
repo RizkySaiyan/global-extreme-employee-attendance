@@ -21,26 +21,24 @@ class CompanyOfficeParser extends BaseParser
             'id'=>$data->id,
             'code'=> $data->code,
             'name'=> $data->name,
-            'departments' => self::briefs($data->departments)
+            'departments' => self::departments($data->departments)
         ];
     }
 
-    public static function briefs($collections){
-
-        if(!$collections || count($collections) == 0){
+    private static function departments($departments){
+        
+        if(!$departments || count($departments) == 0){
             return null;
         }
 
         $data = [];
 
-        foreach($collections as $collection){
+        foreach($departments as $department){
             $data[] = [
-                'id' => $collection->id,
-                'name' => $collection->name
+                'id' => $department->id,
+                'name' => $department->name
             ];
         }
-
         return $data;
     }
-
 }

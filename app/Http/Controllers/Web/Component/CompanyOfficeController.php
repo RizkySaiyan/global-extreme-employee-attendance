@@ -5,34 +5,33 @@ namespace App\Http\Controllers\Web\Component;
 use App\Algorithms\Component\CompanyOfficeAlgo;
 use App\Algorithms\Component\ComponentAlgo;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Component\ComponentRequest;
+use App\Http\Requests\Component\CompanyOfficeDepartmentRequest;
+use App\Http\Requests\Component\CompanyOfficeRequest;
 use App\Models\Component\CompanyOffice;
-use App\Models\Component\CompanyOfficeDepartment;
 use App\Parser\Component\CompanyOfficeParser;
 use Illuminate\Http\Request;
 
 class CompanyOfficeController extends Controller
 {
     //
-    public function get(Request $request){
+    public function get(Request $request)
+    {
         $companyOffice = CompanyOffice::getOrPaginate($request);
 
         return success($companyOffice);
     }
 
-
-    public function create(ComponentRequest $request){
-        
+    public function create(CompanyOfficeRequest $request)
+    {
         $algo = new ComponentAlgo();
 
         return $algo->createBy(CompanyOffice::class, $request);
     }
 
-    public function update($id,ComponentRequest $request){
-        
+    public function update($id, CompanyOfficeRequest $request)
+    {
         $companyOffice = CompanyOffice::find($id);
-
-        if(!$companyOffice){
+        if (!$companyOffice) {
             errCompanyOfficeNotFound();
         }
 
@@ -41,12 +40,10 @@ class CompanyOfficeController extends Controller
         return $algo->update($companyOffice, $request);
     }
 
-
-    public function delete($id){
-
+    public function delete($id)
+    {
         $companyOffice = CompanyOffice::find($id);
-
-        if(!$companyOffice){
+        if (!$companyOffice) {
             errCompanyOfficeNotFound();
         }
 
@@ -55,10 +52,10 @@ class CompanyOfficeController extends Controller
         return $algo->delete($companyOffice);
     }
 
-    public function saveDepartment($id, Request $request){
+    public function saveDepartment($id, CompanyOfficeDepartmentRequest $request)
+    {
         $companyOffice = CompanyOffice::find($id);
-
-        if(!$companyOffice){
+        if (!$companyOffice) {
             errCompanyOfficeNotFound();
         }
 
@@ -67,23 +64,13 @@ class CompanyOfficeController extends Controller
         return $algo->saveDepartment($companyOffice, $request);
     }
 
-    public function getDepartmentMapping($id){
+    public function getDepartmentMapping($id)
+    {
         $companyOfficeDepartment = CompanyOffice::find($id);
-        
         if (!$companyOfficeDepartment) {
             errCompanyOfficeNotFound();
         }
 
         return success(CompanyOfficeParser::first($companyOfficeDepartment));
     }
-    
-    public function getDepartmentMappings(Request $request){
-        $companyOfficeDepartment = CompanyOffice::getOrPaginate($request);
-        
-        if (!$companyOfficeDepartment) {
-            errCompanyOfficeNotFound();
-        }
-
-        return success(CompanyOfficeParser::get($companyOfficeDepartment));
-    } 
 }
