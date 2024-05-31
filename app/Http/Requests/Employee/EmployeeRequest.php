@@ -22,7 +22,23 @@ class EmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string',
+            'companyOfficeId' => 'required|exists:company_offices,id',
+            'departmentId' => 'required|exists:departments,id',
+            'phone' => 'nullable|string',
+            'address' => 'nullable|string',
+            'photo' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string',
+            'fatherName' => 'required|string',
+            'fatherPhone' => 'nullable|string',
+            'fatherEmail' => 'nullable|string',
+            'motherName' => 'required|string',
+            'motherPhone' => 'nullable|string',
+            'motherEmail' => 'nullable|string',
+            'siblings.*.name' => 'required|string',
+            'siblings.*.phone' => 'nullable|string',
+            'siblings.*.email' => 'nullable|string',
         ];
     }
 }
