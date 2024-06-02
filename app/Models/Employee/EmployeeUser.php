@@ -3,10 +3,13 @@
 namespace App\Models\Employee;
 
 use App\Models\BaseModel;
-use Illuminate\Contracts\Auth\Authenticatable;
+use App\Models\GetOrPaginate;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class EmployeeUser extends Autheticable implements JWTSubject
+class EmployeeUser extends User implements JWTSubject
 {
     use SoftDeletes;
     use GetOrPaginate;
@@ -26,6 +29,12 @@ class EmployeeUser extends Autheticable implements JWTSubject
     ];
 
     // Add any additional properties or methods you need for your User model
+    
+    /** RELATIONSHIP */
+    public function employee(){
+        return $this->belongsTo(Employee::class, 'employeeId');
+    }
+
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
