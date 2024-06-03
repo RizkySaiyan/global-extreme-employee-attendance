@@ -1,5 +1,13 @@
 <?php
 
+if (!function_exists("errEmployeeNotFound")) {
+    function errEmployeeNotFound($internalMsg = "", $status = null)
+    {
+        error(404, "Employee Not Found!", $internalMsg, $status);
+    }
+}
+
+
 if (!function_exists("errEmployeeSiblingsSave")) {
     function errEmployeeSiblingsSave($internalMsg = "", $status = null)
     {

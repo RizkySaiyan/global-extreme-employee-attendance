@@ -10,15 +10,28 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Exception;
+use Illuminate\Support\Facades\Auth;
+
 class EmployeeAlgo
 {
+    public function __construct(public ?Employee $employee = null)
+    {
+    }
 
     public function create(EmployeeRequest $request)
     {
         try {
-            $employee = DB::transaction(function () use ($request) {
+            DB::transaction(function () use ($request) {
+                
+                $createdBy = [];
+                if($user = Auth::user()){
+                    $createdBy = [
+                        'createdBy' => $user->employeeId,
+                        'createdByName' => $user->employee->name
+                    ];
+                }
 
-                $employee = Employee::create([
+                $this->employee = Employee::create([
                     'name' => $request->name,
                     'number' => EmployeeNumber::generate(),
                     'companyOfficeId' => $request->companyOfficeId,
@@ -32,46 +45,70 @@ class EmployeeAlgo
                     'motherName' => $request->motherName,
                     'motherPhone' => $request->motherPhone,
                     'motherEmail' => $request->motherEmail,
-                ]);
+                ] + $createdBy);
 
                 if ($request->has('siblings')) {
-                    $siblings = $this->createSiblings($employee, $request);
+                    $siblings = $this->saveSiblings($request);
                     if (!$siblings) {
                        errEmployeeSiblingsSave();
                     }
                 }
-                $user = $this->createEmployeeUser($employee, $request);
-                if (!$user) {
+                $employeeUser = $this->saveEmployeeUser($request);
+                if (!$employeeUser) {
                     errEmployeeUserSave();
                 }
-
-                return $employee;
             });
-            return success($employee);
+            return success($this->employee);
         } catch (Exception $exception) {
+            exception($exception);
+        }
+    }
+
+    public function update(Request $request){
+        try {
+            DB::transaction(function() use($request){
+                
+                $this->employee->update([
+                    'name' => $request->name,
+                    'companyOfficeId' => $request->companyOfficeId,
+                    'departmentId' => $request->departmentId,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                    'photo' => $request->photo,
+                    'fatherName' => $request->fatherName,
+                    'fatherPhone' => $request->fatherPhone,
+                    'fatherEmail' => $request->fatherEmail,
+                    'motherName' => $request->motherName,
+                    'motherPhone' => $request->motherPhone,
+                    'motherEmail' => $request->motherEmail,
+                ]);
+
+                if($request->has('siblings')) {
+                    $siblings = $this->saveSiblings($request);
+                    if (!$siblings) {
+                       errEmployeeSiblingsSave();
+                    }
+                }
+
+                $employeeUser = $this->saveEmployeeUser($request);
+                if (!$employeeUser) {
+                    errEmployeeUserSave();
+                }
+            });
+        } catch (\Exception $exception) {
             exception($exception);
         }
     }
 
     /** FUNCTIONS */
 
-    public function createEmployeeUser(Employee $employee,Request $request){
-        return $employee->user()->create([
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => EmployeeUserRole::USER_ID
-        ]);
+    private function saveEmployeeUser(Request $request){
+        $form = $request->only(['email','password']);
+
+        return $this->employee->saveUser($form);
     }
 
-    public function createSiblings(Employee $employee, Request $request){
-        $siblings = [];
-        foreach ($request->siblings as $value) {
-            $siblings[] = [
-                'name' => $value['name'],
-                'phone' => $value['phone'],
-                'email' => $value['email']
-            ];
-        }
-        return $employee->siblings()->createMany($siblings);
+    private function saveSiblings(Request $request){
+        return $this->employee->saveSiblings($request->siblings);
     }
 }
