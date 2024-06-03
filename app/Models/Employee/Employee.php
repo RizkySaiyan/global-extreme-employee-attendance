@@ -31,6 +31,11 @@ class Employee extends BaseModel
         return $this->hasOne(EmployeeUser::class, 'employeeId');
     }
 
+    public function resign()
+    {
+        return $this->hasOne(EmployeeResignation::class, 'employeeId');
+    }
+
 
     /** FUNCTIONS */
     public function delete()
@@ -51,16 +56,25 @@ class Employee extends BaseModel
         if ($user) {
             unset($attributes['password']);
         }
-        return $user->update($attributes);
+
+        return $this->user()->updateOrCreate(['employeeId'=>$this->id],$attributes);
     }
 
     public function saveSiblings($attributes){
+
+        $createdBy = [];
+        if($user = Auth::user()){
+            $createdBy = [
+                'createdBy'=> $user->id,
+                'createdByName' => $user->employee->name
+            ];
+        }
         $siblings = $this->siblings;
         if ($siblings) { 
             $existingSiblingsIds = $siblings->pluck('id')->toArray();
-            $reqSiblingIds = collect($attributes)->pluck('id')->filter()->toArray();
+            $requestSiblingsIds = collect($attributes)->pluck('id')->toArray();
 
-            $deleteSiblings = array_diff($existingSiblingsIds, $reqSiblingIds);
+            $deleteSiblings = array_diff($existingSiblingsIds, $requestSiblingsIds);
             $this->siblings()->whereIn('id',$deleteSiblings)->delete();
         }
 
@@ -68,9 +82,13 @@ class Employee extends BaseModel
             if (isset($sibling['id'])) {
                 $this->siblings()->where('id', $sibling['id'])->update($sibling);
             } else {
-                $this->siblings()->create($sibling);
+                $this->siblings()->create($sibling + $createdBy);
             }
         }
         return $siblings;
+    }
+
+    public function saveResign($attributes){
+
     }
 }

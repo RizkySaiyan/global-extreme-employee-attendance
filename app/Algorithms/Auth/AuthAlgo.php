@@ -23,7 +23,7 @@ class AuthAlgo
                 
                 $user = EmployeeUser::where('email',$credentials['email'])->first();
                 $data = [
-                    'employeeId' => $user->id,
+                    'employeeId' => $user->employeeId,
                     'employeeName' => $user->employee->name,
                     'email' => $user->email,
                     'role' => EmployeeUserRole::display($user->role),

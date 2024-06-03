@@ -130,7 +130,9 @@ class EmployeeAlgo
 
     private function saveEmployeeUser(Request $request){
         $form = $request->only(['email','password']);
-
+        $form['role'] = EmployeeUserRole::ADMIN_ID;
+        $form['password'] = Hash::make($form['password']);
+        
         return $this->employee->saveUser($form);
     }
 
