@@ -36,7 +36,8 @@
 
             "app/Services/Helpers/Status/globals.php",
             "app/Services/Helpers/Status/component.php",
-            "app/Services/Helpers/Status/auth.php"
+            "app/Services/Helpers/Status/auth.php",
+            "app/Services/Helpers/Status/employee.php"
         ]
     },
     "autoload-dev": {

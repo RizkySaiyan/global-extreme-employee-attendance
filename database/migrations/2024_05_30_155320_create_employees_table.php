@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('companyOfficeId');
             $table->foreignId('departmentId');
             $table->string('name');
+            $table->string('number');
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->string('photo')->nullable();

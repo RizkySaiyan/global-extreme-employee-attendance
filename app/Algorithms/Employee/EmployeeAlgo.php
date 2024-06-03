@@ -5,35 +5,27 @@ namespace App\Algorithms\Employee;
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Models\Employee\Employee;
 use App\Services\Constant\Employee\EmployeeUserRole;
+use App\Services\Number\Generator\Employee\EmployeeNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-
+use Exception;
 class EmployeeAlgo
 {
-
-    public function __construct(?Employee $employee = null)
-    {
-        
-    }
 
     public function create(EmployeeRequest $request)
     {
         try {
             $employee = DB::transaction(function () use ($request) {
 
-                $photoPath = null;
-                if ($request->has('photo')) {
-                    $photoPath = $request->file('photo')->store('employee','public');
-                }
-
                 $employee = Employee::create([
                     'name' => $request->name,
+                    'number' => EmployeeNumber::generate(),
                     'companyOfficeId' => $request->companyOfficeId,
                     'departmentId' => $request->departmentId,
-                    'phone' => $request?->phone,
+                    'phone' => $request->phone,
                     'address' => $request->address,
-                    'photo' => $photoPath,
+                    'photo' => $request->photo,
                     'fatherName' => $request->fatherName,
                     'fatherPhone' => $request->fatherPhone,
                     'fatherEmail' => $request->fatherEmail,
@@ -42,32 +34,36 @@ class EmployeeAlgo
                     'motherEmail' => $request->motherEmail,
                 ]);
 
-
                 if ($request->has('siblings')) {
-                    $this->saveSiblings($employee, $request);
+                    $siblings = $this->createSiblings($employee, $request);
+                    if (!$siblings) {
+                       errEmployeeSiblingsSave();
+                    }
                 }
-
-                $this->saveEmployeeUser($employee, $request);
+                $user = $this->createEmployeeUser($employee, $request);
+                if (!$user) {
+                    errEmployeeUserSave();
+                }
 
                 return $employee;
             });
             return success($employee);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             exception($exception);
         }
     }
 
     /** FUNCTIONS */
 
-    public function saveEmployeeUser(Employee $employee,Request $request){
+    public function createEmployeeUser(Employee $employee,Request $request){
         return $employee->user()->create([
             'email' => $request->email,
-            'password' => $request->password,
+            'password' => Hash::make($request->password),
             'role' => EmployeeUserRole::USER_ID
         ]);
     }
 
-    public function saveSiblings(Employee $employee, Request $request){
+    public function createSiblings(Employee $employee, Request $request){
         $siblings = [];
         foreach ($request->siblings as $value) {
             $siblings[] = [
@@ -77,9 +73,5 @@ class EmployeeAlgo
             ];
         }
         return $employee->siblings()->createMany($siblings);
-    }
-
-    public function savePhoto(Request $request){
-
     }
 }

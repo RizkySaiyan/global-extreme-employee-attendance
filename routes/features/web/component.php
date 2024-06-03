@@ -4,7 +4,7 @@ use App\Http\Controllers\Web\Component\CompanyOfficeController;
 use App\Http\Controllers\Web\Component\DepartmentController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('components')->middleware(['role:admin'])->group(function(){
+Route::prefix('components')->middleware(['role:user'])->group(function(){
 
     //company office
     Route::prefix('company-offices')->group(function(){

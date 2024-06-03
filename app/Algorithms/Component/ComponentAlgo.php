@@ -6,6 +6,7 @@ use App\Services\Constant\Activity\ActivityAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ComponentAlgo
@@ -23,17 +24,12 @@ class ComponentAlgo
             $component = DB::transaction(function () use ($model, $request) {
                 $createdBy = [];
 
-                // TODO: Enable after install globalxtreme/laravel-identifier.
-//                $tableName = app($model)->getTable();
-//                $columns = DB::getSchemaBuilder()->getColumnListing($tableName);
-//                if (in_array('createdBy', $columns)) {
-//                    if ($user = auth_user()) {
-//                        $createdBy = [
-//                            'createdBy' => $user['id'],
-//                            'createdByName' => $user['fullName'],
-//                        ];
-//                    }
-//                }
+                   if ($user = Auth::user()) {
+                        $createdBy = [
+                           'createdBy' => $user->employeeId,
+                           'createdByName' => $user->employee->name,
+                        ];
+                   }
 
                 $component = $model::create($request->all() + $createdBy);
 
