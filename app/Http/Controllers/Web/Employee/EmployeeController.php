@@ -33,4 +33,14 @@ class EmployeeController extends Controller
         $algo = new EmployeeAlgo($employee);
         return $algo->update($request);
     }
+
+    public function delete($id){
+        $employee = Employee::findOrFail($id);
+        if(!$employee){
+            errEmployeeNotFound();
+        }
+
+        $algo = new EmployeeAlgo($employee);
+        return $algo->delete();
+    }
 }

@@ -33,6 +33,19 @@ class Employee extends BaseModel
 
 
     /** FUNCTIONS */
+    public function delete()
+    {
+        if ($this->user) {
+            $this->user()->delete();
+        }
+
+        if ($this->siblings) {
+            $this->siblings()->delete();
+        }
+        
+        return parent::delete();
+    }
+
     public function saveUser($attributes){
         $user = $this->user;
         if ($user) {

@@ -4,6 +4,7 @@ namespace App\Algorithms\Employee;
 
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Models\Employee\Employee;
+use App\Services\Constant\Activity\ActivityAction;
 use App\Services\Constant\Employee\EmployeeUserRole;
 use App\Services\Number\Generator\Employee\EmployeeNumber;
 use Illuminate\Http\Request;
@@ -57,6 +58,9 @@ class EmployeeAlgo
                 if (!$employeeUser) {
                     errEmployeeUserSave();
                 }
+
+                $this->employee->setActivityPropertyAttributes(ActivityAction::CREATE)
+                ->saveActivity("Enter new Employee :  {$this->employee->name}  [{$this->employee->id}]");
             });
             return success($this->employee);
         } catch (Exception $exception) {
@@ -67,7 +71,9 @@ class EmployeeAlgo
     public function update(Request $request){
         try {
             DB::transaction(function() use($request){
-                
+
+                $this->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
+
                 $this->employee->update([
                     'name' => $request->name,
                     'companyOfficeId' => $request->companyOfficeId,
@@ -94,8 +100,28 @@ class EmployeeAlgo
                 if (!$employeeUser) {
                     errEmployeeUserSave();
                 }
+
+                $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
+                ->saveActivity("Enter new Employee :  {$this->employee->name}  [{$this->employee->id}]");
             });
+            return success($this->employee);
         } catch (\Exception $exception) {
+            exception($exception);
+        }
+    }
+
+    public function delete(){
+        try { 
+            DB::transaction(function (){
+                $this->employee->setOldActivityPropertyAttributes(ActivityAction::DELETE);
+
+                $this->employee->delete();
+
+                $this->employee->setActivityPropertyAttributes(ActivityAction::DELETE)
+                ->saveActivity("Delete employee : {$this->employee->name} [{$this->employee->id}]");
+            });
+            return success();
+        } catch (Exception $exception) {
             exception($exception);
         }
     }
