@@ -19,7 +19,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employeeId');
             $table->date('date');
+            $table->text('reason');
             $table->string('file');
+            $this->getDefaultCreatedBy($table);
             $this->getDefaultTimestamps($table);
         });
     }

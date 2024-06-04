@@ -36,6 +36,10 @@ class Employee extends BaseModel
         return $this->hasOne(EmployeeResignation::class, 'employeeId');
     }
 
+    public function attendances(){
+        return $this->hasMany('attendance','employeeId');
+    }
+
 
     /** FUNCTIONS */
     public function delete()
@@ -88,7 +92,7 @@ class Employee extends BaseModel
         return $siblings;
     }
 
-    public function saveResign($attributes){
-
+    public function deleteAttendance(){
+        $this->attendances()->delete();
     }
 }

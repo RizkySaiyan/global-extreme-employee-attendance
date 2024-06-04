@@ -7,6 +7,13 @@ if (!function_exists("errEmployeeNotFound")) {
     }
 }
 
+if (!function_exists("errEmployeeResignExist")) {
+    function errEmployeeResignExist($internalMsg = "", $status = null)
+    {
+        error(404, "Employee already submit resign!", $internalMsg, $status);
+    }
+}
+
 
 if (!function_exists("errEmployeeSiblingsSave")) {
     function errEmployeeSiblingsSave($internalMsg = "", $status = null)

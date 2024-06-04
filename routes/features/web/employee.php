@@ -8,4 +8,5 @@ Route::prefix('employees')->group(function(){
     Route::post('',[EmployeeController::class, 'create']);
     Route::put('/{id}',[EmployeeController::class, 'update']);
     Route::delete('/{id}',[EmployeeController::class, 'delete']);
+    Route::post('/{id}/resign', [EmployeeController::class, 'resign']);
 });

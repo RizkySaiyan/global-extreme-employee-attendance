@@ -24,12 +24,15 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->string('photo')->nullable();
+
             $table->string('fatherName');
             $table->string('fatherPhone')->nullable();
             $table->string('fatherEmail')->nullable();
             $table->string('motherName');
             $table->string('motherPhone')->nullable();
             $table->string('motherEmail')->nullable();
+            
+            $table->boolean('isResign')->default(false);
             $this->getDefaultTimestamps($table);
             $this->getDefaultCreatedBy($table);
         });

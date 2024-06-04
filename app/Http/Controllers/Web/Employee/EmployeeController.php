@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Employee;
 use App\Algorithms\Employee\EmployeeAlgo;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Employee\EmployeeRequest;
+use App\Http\Requests\Employee\EmployeeResignRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Models\Employee\Employee;
 use Illuminate\Http\Request;
@@ -42,5 +43,15 @@ class EmployeeController extends Controller
 
         $algo = new EmployeeAlgo($employee);
         return $algo->delete();
+    }
+
+    public function resign($id,EmployeeResignRequest $request){
+        $employee = Employee::findOrFail($id);
+        if(!$employee){
+            errEmployeeNotFound();
+        }
+
+        $algo = new EmployeeAlgo($employee);
+        return $algo->resign($request);
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Employee\EmployeeUser;
 use App\Services\Constant\Employee\EmployeeUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Tymon\JWTAuth\Contracts\Providers\Auth;
 
 class AuthAlgo
 {
@@ -18,7 +19,7 @@ class AuthAlgo
                 $credentials = $request->only(['email', 'password']);
                 
                 if(!$token = auth()->attempt($credentials)){
-                    errInvalidCredentials('Wrong email or password');
+                    errInvalidCredentials();
                 }
                 
                 $user = EmployeeUser::where('email',$credentials['email'])->first();
@@ -28,7 +29,7 @@ class AuthAlgo
                     'email' => $user->email,
                     'role' => EmployeeUserRole::display($user->role),
                     'accessToken' => $token,
-                    'expiresIn' => auth()->factory()->getTtl() * 60
+                    'expiresIn' => auth()->factory()->getTtl() * 60,
                 ];
                 return $data;
             });
