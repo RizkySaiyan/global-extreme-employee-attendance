@@ -15,4 +15,10 @@ class AuthController extends Controller
 
         return $algo->login($request);
     }
+
+    public function me(){
+        $algo = new AuthAlgo();
+
+        return $algo->getAuthenticatedUser();
+    }
 }

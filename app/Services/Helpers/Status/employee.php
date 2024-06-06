@@ -35,3 +35,10 @@ if (!function_exists("errEmployeeUserSave")) {
         error(500, "Unable to save employee user!", $internalMsg, $status);
     }
 }
+
+if (!function_exists("errOldPasswordNotMatch")) {
+    function errOldPasswordNotMatch($internalMsg = "", $status = null)
+    {
+        error(500, "Old password wrong !", $internalMsg, $status);
+    }
+}

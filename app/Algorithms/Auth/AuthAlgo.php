@@ -3,25 +3,25 @@
 namespace App\Algorithms\Auth;
 
 use App\Models\Employee\EmployeeUser;
+use App\Parser\Auth\AuthParser;
 use App\Services\Constant\Employee\EmployeeUserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Contracts\Providers\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthAlgo
 {
 
     public function login(Request $request)
     {
-        
         try {
             $tokenPair = DB::transaction(function() use($request){
                 $credentials = $request->only(['email', 'password']);
                 
-                if(!$token = auth()->attempt($credentials)){
+                if(!$token = JWTAuth::attempt($credentials)){
                     errInvalidCredentials();
                 }
-                
                 $user = EmployeeUser::where('email',$credentials['email'])->first();
                 $data = [
                     'employeeId' => $user->employeeId,
@@ -38,6 +38,13 @@ class AuthAlgo
         } catch (\Exception $exception) {
             exception($exception);
         }
+    }
+
+    public function getAuthenticatedUser(){
+        $token = JWTAuth::parseToken();
+        $user = $token->authenticate();
+
+        return success(AuthParser::getAuthenticatedUser($user));
     }
 
     public function logout(){

@@ -6,6 +6,7 @@ use App\Algorithms\Employee\EmployeeAlgo;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\EmployeeResignRequest;
+use App\Http\Requests\Employee\ResetPasswordRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Models\Employee\Employee;
 use Illuminate\Http\Request;
@@ -63,5 +64,12 @@ class EmployeeController extends Controller
 
         $algo = new EmployeeAlgo($employee);
         return $algo->changeRoleToAdmin();
+    }
+
+    public function resetPassword(ResetPasswordRequest $request, $id = null){
+        $employee = Employee::find($id) ?? null;
+
+        $algo = new EmployeeAlgo($employee);
+        return $algo->resetPassword($request);
     }
 }

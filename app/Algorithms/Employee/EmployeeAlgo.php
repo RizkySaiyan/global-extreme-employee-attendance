@@ -3,6 +3,7 @@
 namespace App\Algorithms\Employee;
 
 use App\Http\Requests\Employee\EmployeeRequest;
+use App\Http\Requests\Employee\ResetPasswordRequest;
 use App\Jobs\DeleteEmployeeAttendance;
 use App\Models\Employee\Employee;
 use App\Services\Constant\Activity\ActivityAction;
@@ -123,6 +124,33 @@ class EmployeeAlgo
             return success($this->employee);
 
         } catch (\Exception $exception) {
+            exception($exception);
+        }
+    }
+
+    public function resetPassword(ResetPasswordRequest $request){
+        try {
+            DB::transaction(function () use($request){
+                $user = Auth::user();
+
+                if ($this->employee) {
+                    $request->except('existingPassword');
+                    $this->employee->user()->update([
+                        'password' => Hash::make($request->newPassword)
+                    ]);
+                }
+                
+                if (!Hash::check($request->existingPassword, $user->password)) {
+                    errOldPasswordNotMatch();
+                }
+
+                $user->update([
+                    'password' => Hash::make($request->newPassword)
+                ]);
+            });
+            return success();
+        } 
+        catch (\Exception $exception) {
             exception($exception);
         }
     }
