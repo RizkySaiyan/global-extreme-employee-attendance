@@ -24,7 +24,7 @@ class EmployeeResignRequest extends FormRequest
         return [
             'date' => 'date|required',
             'reason' => 'string|required',
-            'file' => 'string|required'
+            'file' => 'string|mimes:jpg,png,pdf'
         ];
     }
 }

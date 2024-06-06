@@ -32,7 +32,7 @@ class RoleMiddleware
             errUnauthorized('Please, attach a Bearer Token to your request');
         }
         
-        if ($user && in_array($parseRole, $roles)) {
+        if ($user && in_array($parseRole, $roles) && !$user->employee->isResign) {
             return $next($request);
         }
         return errUnauthorized();

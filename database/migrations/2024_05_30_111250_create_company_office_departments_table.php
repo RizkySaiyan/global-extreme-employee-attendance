@@ -15,7 +15,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('company_office_departments', function (Blueprint $table) {
+        Schema::create('component_company_office_departments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('companyOfficeId')->constrained('company_offices')->onDelete('cascade');
             $table->foreignId('departmentId')->constrained('departments')->onDelete('restrict');

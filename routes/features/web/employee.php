@@ -7,6 +7,7 @@ Route::prefix('employees')->group(function() {
         Route::middleware('role:admin')->group(function(){
             Route::get('', [EmployeeController::class, 'get'])->middleware('role:admin');
             Route::post('', [EmployeeController::class, 'create']);
+            Route::get('/{id}', [EmployeeController::class, 'getById']);
             Route::post('/{id}', [EmployeeController::class, 'update']);
             Route::delete('/{id}', [EmployeeController::class, 'delete']);
             Route::post('/{id}/resign', [EmployeeController::class, 'resign']);

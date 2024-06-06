@@ -9,6 +9,7 @@ use App\Http\Requests\Employee\EmployeeResignRequest;
 use App\Http\Requests\Employee\ResetPasswordRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Models\Employee\Employee;
+use App\Parser\Employee\EmployeeParser;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -18,6 +19,16 @@ class EmployeeController extends Controller
         $employee = Employee::getOrPaginate($request);
 
         return success($employee);
+    }
+
+    public function getById($id){
+        $employee = Employee::findOrFail($id);
+
+        if (!$employee) {
+            errEmployeeNotFound();
+        }
+
+        return success(EmployeeParser::first($employee));
     }
 
     public function create(EmployeeRequest $request){

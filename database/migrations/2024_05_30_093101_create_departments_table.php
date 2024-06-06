@@ -15,7 +15,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
+        Schema::create('component_departments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $this->getDefaultCreatedBy($table);

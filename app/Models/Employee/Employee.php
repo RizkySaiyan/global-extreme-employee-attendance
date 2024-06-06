@@ -4,6 +4,7 @@ namespace App\Models\Employee;
 
 use App\Models\BaseModel;
 use App\Models\Employee\Traits\HasActivityEmployeeProperty;
+use App\Parser\Employee\EmployeeParser;
 use App\Services\Constant\Employee\EmployeeUserRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +21,8 @@ class Employee extends BaseModel
         self::UPDATED_AT => 'datetime',
         self::DELETED_AT => 'datetime'
     ];
+
+    protected $parserClass = EmployeeParser::class;
 
     /** RELATIONSHIPS */
     public function siblings()
@@ -44,10 +47,6 @@ class Employee extends BaseModel
     /** FUNCTIONS */
     public function delete()
     {
-        if ($this->user) {
-            $this->user()->delete();
-        }
-
         if ($this->siblings) {
             $this->siblings()->delete();
         }

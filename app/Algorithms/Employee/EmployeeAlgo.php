@@ -73,7 +73,7 @@ class EmployeeAlgo
                 }
 
                 $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
-                ->saveActivity("Enter new Employee :  {$this->employee->name}  [{$this->employee->id}]");
+                ->saveActivity("Update Employee :  {$this->employee->name}  [{$this->employee->id}]");
             });
             return success($this->employee);
         } catch (\Exception $exception) {
@@ -139,7 +139,7 @@ class EmployeeAlgo
                         'password' => Hash::make($request->newPassword)
                     ]);
                 }
-                
+
                 if (!Hash::check($request->existingPassword, $user->password)) {
                     errOldPasswordNotMatch();
                 }
