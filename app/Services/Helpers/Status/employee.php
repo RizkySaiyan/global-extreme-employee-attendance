@@ -7,6 +7,13 @@ if (!function_exists("errEmployeeNotFound")) {
     }
 }
 
+if (!function_exists("errEmployeeUserAdmin")) {
+    function errEmployeeUserAdmin($internalMsg = "", $status = null)
+    {
+        error(404, "Employee is already an admin", $internalMsg, $status);
+    }
+}
+
 if (!function_exists("errEmployeeResignExist")) {
     function errEmployeeResignExist($internalMsg = "", $status = null)
     {

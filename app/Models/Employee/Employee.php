@@ -59,6 +59,7 @@ class Employee extends BaseModel
         $user = $this->user;
         if ($user) {
             unset($attributes['password']);
+            unset($attributes['role']);
         }
 
         return $this->user()->updateOrCreate(['employeeId'=>$this->id],$attributes);
@@ -66,30 +67,25 @@ class Employee extends BaseModel
 
     public function saveSiblings($attributes){
 
-        $createdBy = [];
-        if($user = Auth::user()){
-            $createdBy = [
-                'createdBy'=> $user->id,
-                'createdByName' => $user->employee->name
-            ];
-        }
-        $siblings = $this->siblings;
-        if ($siblings) { 
-            $existingSiblingsIds = $siblings->pluck('id')->toArray();
-            $requestSiblingsIds = collect($attributes)->pluck('id')->toArray();
+        $user = Auth::user();
+        $createdBy = [
+            'createdBy'=> $user?->id,
+            'createdByName' => $user->employee?->name
+        ];
 
-            $deleteSiblings = array_diff($existingSiblingsIds, $requestSiblingsIds);
-            $this->siblings()->whereIn('id',$deleteSiblings)->delete();
-        }
-
+        $existingIds = [];
         foreach ($attributes as $sibling) {
             if (isset($sibling['id'])) {
                 $this->siblings()->where('id', $sibling['id'])->update($sibling);
+                $existingIds[] = $sibling['id'];
             } else {
-                $this->siblings()->create($sibling + $createdBy);
+                $newSibling = $this->siblings()->create($sibling + $createdBy);
+                $existingIds[] = $newSibling->id;
             }
         }
-        return $siblings;
+        $this->siblings()->whereNotIn('id', $existingIds)->delete();
+
+        return $this->siblings;
     }
 
     public function deleteAttendance(){

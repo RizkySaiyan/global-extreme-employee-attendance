@@ -12,7 +12,6 @@ Route::prefix('components')->middleware(['role:admin'])->group(function(){
         Route::post('',[CompanyOfficeController::class, 'create']);
         Route::put('/{id}',[CompanyOfficeController::class, 'update']);
         Route::delete('/{id}',[CompanyOfficeController::class, 'delete']);
-        Route::get('/departments',[CompanyOfficeController::class,'getDepartmentMappings']);
         Route::get('/{id}/departments',[CompanyOfficeController::class,'getDepartmentMapping']);
         Route::post('/{id}/departments',[CompanyOfficeController::class,'saveDepartment']);
     });

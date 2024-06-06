@@ -28,7 +28,7 @@ class UpdateEmployeeRequest extends FormRequest
             'departmentId' => 'required|exists:departments,id',
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
-            'photo' => 'required|string',
+            'photo' => 'required|mimes:jpg,png',
             'email' => 'required|email',
             'fatherName' => 'required|string',
             'fatherPhone' => 'nullable|string',

@@ -26,8 +26,8 @@ class EmployeeNumber extends BaseNumber
     
         $static = new static();
     
-        $latestEmployee = $static->model::whereMonth('createdAt', 1)
-            ->whereYear('createdAt', 2024)
+        $latestEmployee = $static->model::whereMonth('createdAt', $date->month)
+            ->whereYear('createdAt', $date->year)
             ->orderBy('createdAt', 'desc')
             ->first();
     
@@ -39,8 +39,7 @@ class EmployeeNumber extends BaseNumber
         } else {
             $next = str_pad(1, 6, '0', STR_PAD_LEFT);
         }
-    
-        $number = $numberPrefix . $next;
-        return $number;
+
+        return $numberPrefix . $next;
     }
 }

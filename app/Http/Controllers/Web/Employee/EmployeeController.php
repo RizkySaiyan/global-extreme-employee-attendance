@@ -54,4 +54,14 @@ class EmployeeController extends Controller
         $algo = new EmployeeAlgo($employee);
         return $algo->resign($request);
     }
+
+    public function promoteAdmin($id){
+        $employee = Employee::findOrFail($id);
+        if (!$employee) {
+            errEmployeeNotFound();
+        }
+
+        $algo = new EmployeeAlgo($employee);
+        return $algo->changeRoleToAdmin();
+    }
 }

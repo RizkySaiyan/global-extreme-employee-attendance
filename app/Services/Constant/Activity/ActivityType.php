@@ -8,10 +8,12 @@ class ActivityType extends BaseCodeName
 {
     const GENERAL = 'general';
     const COMPONENT = 'component';
+    const EMPLOYEE = 'employee';
 
     const OPTION = [
         self::GENERAL,
         self::COMPONENT,
+        self::EMPLOYEE
     ];
 
 }

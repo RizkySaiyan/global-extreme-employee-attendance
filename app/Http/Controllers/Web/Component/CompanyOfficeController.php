@@ -66,11 +66,12 @@ class CompanyOfficeController extends Controller
 
     public function getDepartmentMapping($id)
     {
-        $companyOfficeDepartment = CompanyOffice::find($id);
-        if (!$companyOfficeDepartment) {
+        $companyOffice = CompanyOffice::find($id);
+        if (!$companyOffice) {
             errCompanyOfficeNotFound();
         }
 
-        return success(CompanyOfficeParser::first($companyOfficeDepartment));
+        $algo = new CompanyOfficeAlgo();
+        return $algo->departmentMappings($companyOffice);
     }
 }

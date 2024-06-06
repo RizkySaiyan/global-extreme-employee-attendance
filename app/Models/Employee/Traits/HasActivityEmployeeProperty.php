@@ -15,7 +15,7 @@ trait HasActivityEmployeeProperty
      */
     public function getActivityType(): string
     {
-        return ActivityType::GENERAL;
+        return ActivityType::EMPLOYEE;
     }
 
     /**
@@ -41,6 +41,13 @@ trait HasActivityEmployeeProperty
     public function getActivityPropertyUpdate()
     {
         return $this->setActivityPropertyParser();
+    }
+
+    public function getAcitivityPropertyUpdateRole(){
+        return [
+            'name' => $this->name,
+            'number' => $this->number,
+        ];
     }
 
     /**

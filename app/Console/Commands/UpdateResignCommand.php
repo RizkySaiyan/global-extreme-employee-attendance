@@ -6,7 +6,7 @@ use App\Models\Employee\Employee;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class UpdateResign extends Command
+class UpdateResignCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -30,10 +30,10 @@ class UpdateResign extends Command
         //
         $today = Carbon::today()->format('Y-m-d');
 
-        
         Employee::whereHas('resign', function($query) use($today){
             $query->where('date','<=',$today);
         })->update(['isResign'=>true]);
+
         $this->info('Employee resign status updated successfully.');
     }
 }

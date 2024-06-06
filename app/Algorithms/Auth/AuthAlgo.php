@@ -39,4 +39,9 @@ class AuthAlgo
             exception($exception);
         }
     }
+
+    public function logout(){
+        Auth::logout();
+        return success();
+    }
 }
