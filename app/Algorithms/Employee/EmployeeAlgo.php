@@ -6,10 +6,12 @@ use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\ResetPasswordRequest;
 use App\Jobs\DeleteEmployeeAttendance;
 use App\Models\Employee\Employee;
+use App\Models\Employee\EmployeeUser;
 use App\Services\Constant\Activity\ActivityAction;
 use App\Services\Constant\Activity\ActivityType;
 use App\Services\Constant\Employee\EmployeeUserRole;
 use App\Services\Number\Generator\EmployeeNumber;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -30,7 +32,10 @@ class EmployeeAlgo
         try {
             DB::transaction(function () use ($request) {
 
+                
+                $this->employeeResignCheck($request);
                 $this->employee = $this->saveEmployee($request);
+
 
                 if ($request->has('siblings')) {
                     $siblings = $this->saveSiblings($request);
@@ -38,6 +43,7 @@ class EmployeeAlgo
                        errEmployeeSiblingsSave();
                     }
                 }
+
                 $employeeUser = $this->saveEmployeeUser($request);
                 if (!$employeeUser) {
                     errEmployeeUserSave();
@@ -103,21 +109,25 @@ class EmployeeAlgo
     public function resign(Request $request){
         try {
             DB::transaction(function() use($request){
-                $user = Auth::user();
-
                 if ($this->employee->resign){
                     errEmployeeResignExist();
                 }
 
                 $createdBy = [
-                    'createdBy' => $user?->employeeId,
-                    'createdByName' => $user->employee?->name
+                    'createdBy' => $this->employee->id,
+                    'createdByName' => $this->employee->name
                 ];
+
+                if ($request->hasFile('file')) {
+                    $file = $request->file('file');
+                    $fileName = filename($file, 'employee'); 
+                    $filePath = $file->storeAs('employee/resign', $fileName, 'public');
+                }
 
                 $this->employee->resign()->create([
                     'date' => $request->date,
                     'reason' => $request->reason,
-                    'file' => $request->file,  
+                    'file' => $filePath
                 ] + $createdBy);           
             });
 
@@ -158,7 +168,7 @@ class EmployeeAlgo
     public function changeRoleToAdmin(){
         try {
             DB::transaction(function (){
-                $this->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE,'role');
+                // $this->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE,'role');
                 
                 if ($this->employee->user->role == EmployeeUserRole::ADMIN_ID) {
                     errEmployeeUserAdmin();
@@ -168,12 +178,27 @@ class EmployeeAlgo
                     'role' => EmployeeUserRole::ADMIN_ID
                 ]);
 
-                $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE,'role')
-                ->saveActivity("Update Employee role to admin {$this->employee->name}, [{$this->employee->id}]");
+                // $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE,'role')
+                // ->saveActivity("Update Employee role to admin {$this->employee->name}, [{$this->employee->id}]");
 
             });
             return success($this->employee);
             
+        } catch (\Exception $exception) {
+            exception($exception);
+        }
+    }
+
+    public function updateStatusResign(){
+        try {
+            DB::transaction(function (){
+
+                $this->employee->resign()->update([
+                    'isResign' => false
+                ]);
+
+            });
+            success($this->employee);
         } catch (\Exception $exception) {
             exception($exception);
         }
@@ -204,11 +229,23 @@ class EmployeeAlgo
         ] + $createdBy);
     }
 
+    private function employeeResignCheck($request){
+        $existingUser = EmployeeUser::where('email',$request->email)->first();
+        if ($existingUser) {
+            $resign = $existingUser->employee->resign;
+            if($resign && Carbon::parse($resign->date)->diffInYears(now()) < 1){
+               return errEmployeeResign();
+            }
+            $existingUser->delete();
+        }
+
+    }
+
     private function saveEmployeeUser(Request $request){
         $form = $request->only(['email','password']);
         $form['role'] = EmployeeUserRole::USER_ID;
         $form['password'] = Hash::make($form['password']);
-        
+         
         return $this->employee->saveUser($form);
     }
 

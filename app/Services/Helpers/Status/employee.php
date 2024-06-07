@@ -17,10 +17,16 @@ if (!function_exists("errEmployeeUserAdmin")) {
 if (!function_exists("errEmployeeResignExist")) {
     function errEmployeeResignExist($internalMsg = "", $status = null)
     {
-        error(404, "Employee already submit resign!", $internalMsg, $status);
+        error(400, "Employee already submit resign!", $internalMsg, $status);
     }
 }
 
+if (!function_exists("errEmployeeResign")) {
+    function errEmployeeResign($internalMsg = "", $status = null)
+    {
+        error(500, "Employee resign is less than one year, update status resign!", $internalMsg, $status);
+    }
+}
 
 if (!function_exists("errEmployeeSiblingsSave")) {
     function errEmployeeSiblingsSave($internalMsg = "", $status = null)

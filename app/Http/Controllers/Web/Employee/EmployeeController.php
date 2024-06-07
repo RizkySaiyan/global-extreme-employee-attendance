@@ -83,4 +83,14 @@ class EmployeeController extends Controller
         $algo = new EmployeeAlgo($employee);
         return $algo->resetPassword($request);
     }
+
+    public function updateStatusResign($id){
+        $employee = Employee::findOrFail($id);
+        if (!$employee) {
+            errEmployeeNotFound();
+        }
+
+        $algo = new EmployeeAlgo($employee);
+        return $algo->updateStatusResign();
+    }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
         Schema::create('employee_users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employeeId');
-            $table->string('email')->unique();
+            $table->string('email');
             $table->string('password');
             $table->integer('role');
             $this->getDefaultTimestamps($table);
