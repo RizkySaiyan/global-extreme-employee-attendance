@@ -4,6 +4,7 @@ namespace App\Models\Employee;
 
 use App\Models\BaseModel;
 use App\Models\GetOrPaginate;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Notifications\Notifiable;
@@ -14,6 +15,7 @@ class EmployeeUser extends User implements JWTSubject
     use SoftDeletes;
     use GetOrPaginate;
     use Notifiable;
+    use HasFactory;
     // protected $table = '';
 
     protected $guarded = ['id'];

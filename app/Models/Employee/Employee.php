@@ -6,13 +6,14 @@ use App\Models\BaseModel;
 use App\Models\Employee\Traits\HasActivityEmployeeProperty;
 use App\Parser\Employee\EmployeeParser;
 use App\Services\Constant\Employee\EmployeeUserRole;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class Employee extends BaseModel
 {
     use HasActivityEmployeeProperty;
-
+    use HasFactory;
     // protected $table = '';
     protected $guarded = ['id'];
 
@@ -43,6 +44,11 @@ class Employee extends BaseModel
         return $this->hasMany('attendance','employeeId');
     }
 
+    /** SCOPES */
+    public function scopeFilter($query,$request){
+
+        return $query->where('name', 'Like', "%$request->name");
+    }
 
     /** FUNCTIONS */
     public function delete()
