@@ -22,7 +22,7 @@ class EmployeeController extends Controller
     }
 
     public function getById($id){
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::find($id);
 
         if (!$employee) {
             errEmployeeNotFound();
@@ -38,7 +38,7 @@ class EmployeeController extends Controller
     }
 
     public function update($id, UpdateEmployeeRequest $request){
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::find($id);
         if (!$employee) {
             errEmployeeNotFound();
         }
@@ -48,7 +48,7 @@ class EmployeeController extends Controller
     }
 
     public function delete($id){
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::find($id);
         if(!$employee){
             errEmployeeNotFound();
         }
@@ -58,7 +58,7 @@ class EmployeeController extends Controller
     }
 
     public function resign($id,EmployeeResignRequest $request){
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::find($id);
         if(!$employee){
             errEmployeeNotFound();
         }
@@ -68,7 +68,7 @@ class EmployeeController extends Controller
     }
 
     public function promoteAdmin($id){
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::find($id);
         if (!$employee) {
             errEmployeeNotFound();
         }
@@ -85,7 +85,7 @@ class EmployeeController extends Controller
     }
 
     public function updateStatusResign($id){
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::find($id);
         if (!$employee) {
             errEmployeeNotFound();
         }

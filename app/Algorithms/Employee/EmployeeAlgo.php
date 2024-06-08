@@ -31,8 +31,7 @@ class EmployeeAlgo
     {
         try {
             DB::transaction(function () use ($request) {
-
-                
+   
                 $this->employeeResignCheck($request);
                 
                 $this->employee = $this->saveEmployee($request);
@@ -83,7 +82,7 @@ class EmployeeAlgo
                 $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
                 ->saveActivity("Update Employee :  {$this->employee->name}  [{$this->employee->id}]");
             });
-            return success($this->employee);
+            return success($this->employee->fresh());
         } catch (\Exception $exception) {
             exception($exception);
         }
