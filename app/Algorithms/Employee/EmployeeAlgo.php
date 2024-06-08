@@ -34,8 +34,9 @@ class EmployeeAlgo
 
                 
                 $this->employeeResignCheck($request);
+                
                 $this->employee = $this->saveEmployee($request);
-
+                $this->validateEmail($request);
 
                 if ($request->has('siblings')) {
                     $siblings = $this->saveSiblings($request);
@@ -63,7 +64,8 @@ class EmployeeAlgo
             DB::transaction(function() use($request){
 
                 $this->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
-
+                
+                $this->validateEmail($request);
                 $this->saveEmployee($request);
 
                 if($request->has('siblings')) {
@@ -143,11 +145,14 @@ class EmployeeAlgo
             DB::transaction(function () use($request){
                 $user = Auth::user();
 
-                if ($this->employee) {
+                if ($this->employee && $this->employee->user != EmployeeUserRole::ADMIN_ID) {
                     $request->except('existingPassword');
                     $this->employee->user()->update([
                         'password' => Hash::make($request->newPassword)
                     ]);
+                }
+                else {
+                    errEmployeeChangePassword();
                 }
 
                 if (!Hash::check($request->existingPassword, $user->password)) {
@@ -230,7 +235,10 @@ class EmployeeAlgo
     }
 
     private function employeeResignCheck($request){
-        $existingUser = EmployeeUser::where('email',$request->email)->first();
+        $existingUser = EmployeeUser::whereHas('employee', function($query) use($request){
+            $query->where('name',$request->name);
+        })->where('email',$request->email)->first();
+
         if ($existingUser) {
             $resign = $existingUser->employee->resign;
             if($resign && Carbon::parse($resign->date)->diffInYears(now()) < 1){
@@ -238,14 +246,25 @@ class EmployeeAlgo
             }
             $existingUser->delete();
         }
+    }
 
+    private function validateEmail(Request $request) {
+        $email = EmployeeUser::where('email',$request->email)
+            ->where('employeeId','!=',$this->employee->id)
+            ->first();
+        if ($email) {
+            errEmployeeEmailUnique();
+        }
     }
 
     private function saveEmployeeUser(Request $request){
-        $form = $request->only(['email','password']);
+        $form = [];
+        if ($request->has('password')) {
+            $form['password'] = Hash::make($request->password);
+        }
+        $form['email'] = $request->email;
         $form['role'] = EmployeeUserRole::USER_ID;
-        $form['password'] = Hash::make($form['password']);
-         
+
         return $this->employee->saveUser($form);
     }
 

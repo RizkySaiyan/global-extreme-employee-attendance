@@ -7,13 +7,6 @@ if (!function_exists("errEmployeeNotFound")) {
     }
 }
 
-if (!function_exists("errEmployeeUserAdmin")) {
-    function errEmployeeUserAdmin($internalMsg = "", $status = null)
-    {
-        error(404, "Employee is already an admin", $internalMsg, $status);
-    }
-}
-
 if (!function_exists("errEmployeeResignExist")) {
     function errEmployeeResignExist($internalMsg = "", $status = null)
     {
@@ -46,5 +39,27 @@ if (!function_exists("errOldPasswordNotMatch")) {
     function errOldPasswordNotMatch($internalMsg = "", $status = null)
     {
         error(500, "Old password wrong !", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errEmployeeEmailUnique")) {
+    function errEmployeeEmailUnique($internalMsg = "", $status = null)
+    {
+        error(400, "Email already used by other user!", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errEmployeeChangePassword")) {
+    function errEmployeeChangePassword($internalMsg = "", $status = null)
+    {
+        error(400, "Cannot change admin password", $internalMsg, $status);
+    }
+}
+
+
+if (!function_exists("errEmployeeUserAdmin")) {
+    function errEmployeeUserAdmin($internalMsg = "", $status = null)
+    {
+        error(404, "Employee is already an admin", $internalMsg, $status);
     }
 }

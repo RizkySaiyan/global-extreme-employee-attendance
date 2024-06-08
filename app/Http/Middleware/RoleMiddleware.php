@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Services\Constant\Employee\EmployeeUserRole;
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,13 +23,13 @@ class RoleMiddleware
             $token = JWTAuth::parseToken();
             $user = $token->authenticate();
             $parseRole = EmployeeUserRole::display($user->role);
-        } catch (TokenExpiredException $e) {
+        } catch (Exception $e) {
             errUnauthorized('Your token has expired. Please, login again.');
         } 
-        catch (TokenInvalidException $e) {
+        catch (Exception $e) {
             errUnauthorized('Your token is invalid. Please, login again.');
         }
-        catch (JWTException $e) {
+        catch (Exception $e) {
             errUnauthorized('Please, attach a Bearer Token to your request');
         }
         

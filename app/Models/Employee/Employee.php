@@ -50,6 +50,10 @@ class Employee extends BaseModel
         if ($this->siblings) {
             $this->siblings()->delete();
         }
+
+        if ($this->user){
+            $this->user()->delete();
+        }
         
         return parent::delete();
     }
@@ -57,7 +61,6 @@ class Employee extends BaseModel
     public function saveUser($attributes){
         $user = $this->user;
         if ($user) {
-            unset($attributes['password']);
             unset($attributes['role']);
         }
 
