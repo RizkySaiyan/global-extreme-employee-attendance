@@ -6,7 +6,7 @@ use App\Models\BaseModel;
 
 class Leave extends BaseModel
 {
-    // protected $table = '';
+    protected $table = 'attendance_leaves';
     protected $guarded = ['id'];
 
     protected $casts = [

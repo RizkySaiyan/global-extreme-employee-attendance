@@ -6,7 +6,7 @@ use App\Models\BaseModel;
 
 class Schedule extends BaseModel
 {
-    // protected $table = '';
+    protected $table = 'attendance_schedules';
     protected $guarded = ['id'];
 
     protected $casts = [

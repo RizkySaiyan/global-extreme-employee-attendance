@@ -6,7 +6,7 @@ use App\Models\BaseModel;
 
 class Correction extends BaseModel
 {
-    // protected $table = '';
+    protected $table = 'attendance_corrections';
     protected $guarded = ['id'];
 
     protected $casts = [

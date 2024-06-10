@@ -2,12 +2,18 @@
 
 namespace App\Models\Attendance;
 
+use App\Models\Attendance\Traits\HasActivityShiftProperty;
 use App\Models\BaseModel;
+use App\Parser\Attendance\ShiftParser;
 
 class Shift extends BaseModel
 {
-    // protected $table = '';
+    use HasActivityShiftProperty;
+
+    protected $table = 'attendance_shifts';
     protected $guarded = ['id'];
+
+    protected $parserClass = ShiftParser::class;
 
     protected $casts = [
         self::CREATED_AT => 'datetime',

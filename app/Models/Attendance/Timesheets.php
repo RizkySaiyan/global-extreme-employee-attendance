@@ -6,7 +6,7 @@ use App\Models\BaseModel;
 
 class Timesheets extends BaseModel
 {
-    // protected $table = '';
+    protected $table = 'attendance_timesheets';
     protected $guarded = ['id'];
 
     protected $casts = [

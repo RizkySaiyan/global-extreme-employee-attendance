@@ -6,7 +6,7 @@ use App\Models\BaseModel;
 
 class PublicHoliday extends BaseModel
 {
-    // protected $table = '';
+    protected $table = 'attendance_public_holidays';
     protected $guarded = ['id'];
 
     protected $casts = [
