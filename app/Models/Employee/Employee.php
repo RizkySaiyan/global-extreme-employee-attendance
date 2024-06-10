@@ -47,7 +47,8 @@ class Employee extends BaseModel
     /** SCOPES */
     public function scopeFilter($query,$request){
 
-        return $query->where('name', 'Like', "%$request->name");
+        $query->where('name', 'LIKE', "%$request->search%")
+        ->orWhere('number', 'LIKE', "%$request->search%");
     }
 
     /** FUNCTIONS */
