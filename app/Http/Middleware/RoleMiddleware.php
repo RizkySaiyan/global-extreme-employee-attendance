@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class RoleMiddleware
@@ -24,19 +25,19 @@ class RoleMiddleware
             $user = $token->authenticate();
             $parseRole = EmployeeUserRole::display($user->role);
         } catch (Exception $e) {
-            errUnauthorized('Your token has expired. Please, login again.');
-        } 
-        catch (Exception $e) {
-            errUnauthorized('Your token is invalid. Please, login again.');
-        }
-        catch (Exception $e) {
-            errUnauthorized('Please, attach a Bearer Token to your request');
+            if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
+                return errUnauthorized("Token is invalid");
+            }else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException){
+                return errUnauthorized("Token is expired");
+            }else{
+                return errUnauthorized("Bearer token not found");;
+            }
         }
         
         if ($user && in_array($parseRole, $roles) && !$user->employee->isResign) {
             return $next($request);
         }
-        return errUnauthorized();
+        return errUnauthorized('Employee already resign or dont have the permission');
     }
 
 }
