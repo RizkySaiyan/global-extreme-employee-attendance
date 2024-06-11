@@ -139,23 +139,26 @@ class EmployeeAlgo
         }
     }
 
-    public function resetPassword(ResetPasswordRequest $request){
+    public function resetPassword(ResetPasswordRequest $request, $id){
         try {
-            DB::transaction(function () use($request){
+            DB::transaction(function () use($request, $id){
                 $user = Auth::user();
 
-                if ($this->employee) {
-                    if($this->employee->user->role != EmployeeUserRole::ADMIN_ID){
-                        $request->except('existingPassword');
-                        $this->employee->user()->update([
-                            'password' => Hash::make($request->newPassword)
-                        ]);
+                if ($id) {
+                    $employee = Employee::find($id);
+                    if (!$employee) {
+                        return errEmployeeNotFound();
                     }
-                    else {
-                        errEmployeeChangePassword();
+    
+                    if ($employee->user->role == EmployeeUserRole::ADMIN_ID) {
+                        return errEmployeeChangePassword();
                     }
-                }
-                else {
+    
+                    $employee->user->update([
+                        'password' => Hash::make($request->newPassword)
+                    ]);
+
+                } else {
                     if (!Hash::check($request->existingPassword, $user->password)) {
                         errOldPasswordNotMatch();
                     }
@@ -211,8 +214,6 @@ class EmployeeAlgo
         }
     }
 
-    
-
     /** FUNCTIONS */
     private function saveEmployee(Request $request){
         $user = Auth::user();
@@ -224,7 +225,7 @@ class EmployeeAlgo
 
         if($this->employee){
             $this->employee->update($form);
-            $this->employee->refresh($this->employee);
+            $this->employee->refresh();
             return $this->employee;
         }
 
@@ -271,7 +272,7 @@ class EmployeeAlgo
         if ($request->has('password')) {
             $form['password'] = Hash::make($request->password);
         }
-        if(!$this->employee){
+        if(!$this->employee->user){
             $form['role'] = EmployeeUserRole::USER_ID;
         }
         $form['email'] = $request->email;

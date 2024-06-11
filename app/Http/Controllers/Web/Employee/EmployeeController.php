@@ -85,11 +85,9 @@ class EmployeeController extends Controller
     }
 
     public function resetPassword(ResetPasswordRequest $request, $id = null)
-    {
-        $employee = Employee::find($id);
-
-        $algo = new EmployeeAlgo($employee);
-        return $algo->resetPassword($request);
+    {    
+        $algo = new EmployeeAlgo();
+        return $algo->resetPassword($request,$id);
     }
 
     public function updateStatusResign($id)
