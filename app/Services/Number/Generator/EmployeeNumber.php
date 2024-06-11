@@ -5,6 +5,7 @@ namespace App\Services\Number\Generator;
 use App\Models\Employee\Employee;
 use App\Services\Number\BaseNumber;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeNumber extends BaseNumber
 {
@@ -26,20 +27,23 @@ class EmployeeNumber extends BaseNumber
     
         $static = new static();
     
-        $latestEmployee = $static->model::whereMonth('createdAt', $date->month)
+        return DB::transaction(function () use($numberPrefix,$static, $date){
+            $latestEmployee = $static->model::whereMonth('createdAt', $date->month)
             ->whereYear('createdAt', $date->year)
             ->orderBy('createdAt', 'desc')
+            ->orderBy('id','desc')
+            ->lockForUpdate()
             ->first();
-    
-        if ($latestEmployee) {
-            $latestNum = $latestEmployee->number;
-            $explode = explode('/', $latestNum);
-            $increment = (int)end($explode) + 1;
-            $next = str_pad($increment, 6, '0', STR_PAD_LEFT);
-        } else {
-            $next = str_pad(1, 6, '0', STR_PAD_LEFT);
-        }
-
-        return $numberPrefix . $next;
+            
+            if ($latestEmployee) {
+                $latestNum = $latestEmployee->number;
+                $explode = explode('/', $latestNum);
+                $increment = (int)end($explode) + 1;
+                $next = str_pad($increment, 6, '0', STR_PAD_LEFT);
+            } else {
+                $next = str_pad(1, 6, '0', STR_PAD_LEFT);
+            }
+            return $numberPrefix . $next;
+        });
     }
 }
