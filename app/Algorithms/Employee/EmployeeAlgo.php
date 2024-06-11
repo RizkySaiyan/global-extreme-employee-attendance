@@ -153,19 +153,26 @@ class EmployeeAlgo
                     if ($employee->user->role == EmployeeUserRole::ADMIN_ID) {
                         return errEmployeeChangePassword();
                     }
-    
+                    $employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
+
                     $employee->user->update([
                         'password' => Hash::make($request->newPassword)
                     ]);
+                    $employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
+                    ->saveActivity("Reset employee password : {$employee->name} [$employee->number]");
 
                 } else {
                     if (!Hash::check($request->existingPassword, $user->password)) {
                         errOldPasswordNotMatch();
                     }
-    
+                    $user->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
+
                     $user->update([
                         'password' => Hash::make($request->newPassword)
                     ]);
+
+                    $user->employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
+                    ->saveActivity("Reset employee password : {$user->employee->name} [{$user->employee->number}]");
                 }
             });
             return success();
