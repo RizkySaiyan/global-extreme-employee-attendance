@@ -43,7 +43,7 @@ trait HasActivityEmployeeProperty
         return $this->setActivityPropertyParser();
     }
 
-    public function getAcitivityPropertyUpdateRole(){
+    public function getActivityPropertyUpdateRole(){
         return [
             'name' => $this->name,
             'number' => $this->number,

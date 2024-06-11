@@ -24,8 +24,8 @@ class UpdateEmployeeRequest extends FormRequest
         return [
             //
             'name' => 'required|string',
-            'companyOfficeId' => 'required|exists:company_offices,id',
-            'departmentId' => 'required|exists:departments,id',
+            'companyOfficeId' => 'required|exists:component_company_offices,id',
+            'departmentId' => 'required|exists:component_departments,id',
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
             'photo' => 'required|mimes:jpg,png',

@@ -10,24 +10,27 @@ use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-    public function get(Request $request){
+    public function get(Request $request)
+    {
         $department = Department::getOrPaginate($request);
 
         return success($department);
     }
 
-    public function create(ComponentRequest $request){
-        
+    public function create(ComponentRequest $request)
+    {
+
         $algo = new ComponentAlgo();
 
         return $algo->createBy(Department::class, $request);
     }
 
-    public function update($id,ComponentRequest $request){
-        
+    public function update($id, ComponentRequest $request)
+    {
+
         $department = Department::find($id);
 
-        if(!$department){
+        if (!$department) {
             errDepartmentNotFound();
         }
 
@@ -36,11 +39,12 @@ class DepartmentController extends Controller
         return $algo->update($department, $request);
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
 
         $department = Department::find($id);
 
-        if(!$department){
+        if (!$department) {
             errDepartmentNotFound();
         }
 

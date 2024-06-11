@@ -14,25 +14,42 @@ class Employee extends BaseModel
 {
     use HasActivityEmployeeProperty;
     use HasFactory;
-    // protected $table = '';
-    protected $guarded = ['id'];
 
+    // protected $table = '';
+    public $parserClass = EmployeeParser::class;
+    protected $guarded = ['id'];
     protected $casts = [
+        'date' => 'datetime',
         self::CREATED_AT => 'datetime',
         self::UPDATED_AT => 'datetime',
         self::DELETED_AT => 'datetime'
     ];
 
-    protected $parserClass = EmployeeParser::class;
+   
+    /** SCOPES */
+    public function scopeFilter($query, $request)
+    {
 
+        return $query->where(function($query) use($request){
+
+            if($this->hasSearch($request)){
+                $query->Where('name', 'LIKE', "%$request->search%")
+                ->orWhere('number', 'LIKE', "%$request->search%");
+            }
+            
+            if($request->has('role')){
+                $query->whereHas('user', function($query) use($request){
+                    $query->where('role', $request->role);
+                });
+            }
+        });
+    }
+
+  
     /** RELATIONSHIPS */
     public function siblings()
     {
         return $this->hasMany(EmployeeSibling::class, 'employeeId');
-    }
-    public function user()
-    {
-        return $this->hasOne(EmployeeUser::class, 'employeeId');
     }
 
     public function resign()
@@ -40,16 +57,16 @@ class Employee extends BaseModel
         return $this->hasOne(EmployeeResignation::class, 'employeeId');
     }
 
-    public function attendances(){
-        return $this->hasMany('attendance','employeeId');
+    public function user()
+    {
+        return $this->hasOne(EmployeeUser::class, 'employeeId');
     }
 
-    /** SCOPES */
-    public function scopeFilter($query,$request){
-
-        $query->where('name', 'LIKE', "%$request->search%")
-        ->orWhere('number', 'LIKE', "%$request->search%");
+    public function attendances()
+    {
+        return $this->hasMany('attendance', 'employeeId');
     }
+
 
     /** FUNCTIONS */
     public function delete()
@@ -58,27 +75,29 @@ class Employee extends BaseModel
             $this->siblings()->delete();
         }
 
-        if ($this->user){
+        if ($this->user) {
             $this->user()->delete();
         }
-        
+
         return parent::delete();
     }
 
-    public function saveUser($attributes){
-        $user = $this->user;
-        if ($user) {
-            unset($attributes['role']);
-        }
-
-        return $this->user()->updateOrCreate(['employeeId'=>$this->id],$attributes);
+    public function deleteAttendance()
+    {
+        $this->attendances()->delete();
     }
 
-    public function saveSiblings($attributes){
+    public function saveUser($attributes)
+    {
+        return $this->user()->updateOrCreate(['employeeId' => $this->id], $attributes);
+    }
+
+    public function saveSiblings($attributes)
+    {
 
         $user = Auth::user();
         $createdBy = [
-            'createdBy'=> $user?->id,
+            'createdBy' => $user?->id,
             'createdByName' => $user->employee?->name
         ];
 
@@ -95,9 +114,5 @@ class Employee extends BaseModel
         $this->siblings()->whereNotIn('id', $existingIds)->delete();
 
         return $this->siblings;
-    }
-
-    public function deleteAttendance(){
-        $this->attendances()->delete();
     }
 }

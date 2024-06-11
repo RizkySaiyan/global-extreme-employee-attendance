@@ -10,13 +10,15 @@ use Illuminate\Http\Request;
 class AuthController extends Controller
 {
     //
-    public function login(AuthRequest $request){
+    public function login(AuthRequest $request)
+    {
         $algo = new AuthAlgo();
 
         return $algo->login($request);
     }
 
-    public function me(){
+    public function me()
+    {
         $algo = new AuthAlgo();
 
         return $algo->getAuthenticatedUser();

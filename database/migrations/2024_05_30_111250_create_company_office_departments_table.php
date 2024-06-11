@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('component_company_office_departments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('companyOfficeId')->constrained('company_offices')->onDelete('cascade');
-            $table->foreignId('departmentId')->constrained('departments')->onDelete('restrict');
+            $table->foreignId('companyOfficeId')->constrained('component_company_offices')->onDelete('cascade');
+            $table->foreignId('departmentId')->constrained('component_departments')->onDelete('restrict');
             $this->getDefaultTimestamps($table);
         });
     }

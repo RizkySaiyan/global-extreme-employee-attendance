@@ -10,6 +10,7 @@ use App\Models\Employee\EmployeeUser;
 use App\Services\Constant\Activity\ActivityAction;
 use App\Services\Constant\Activity\ActivityType;
 use App\Services\Constant\Employee\EmployeeUserRole;
+use App\Services\Constant\Path;
 use App\Services\Number\Generator\EmployeeNumber;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -33,9 +34,8 @@ class EmployeeAlgo
             DB::transaction(function () use ($request) {
    
                 $this->employeeResignCheck($request);
-                
-                $this->employee = $this->saveEmployee($request);
                 $this->validateEmail($request);
+                $this->employee = $this->saveEmployee($request);
 
                 if ($request->has('siblings')) {
                     $siblings = $this->saveSiblings($request);
@@ -122,7 +122,7 @@ class EmployeeAlgo
                 if ($request->hasFile('file')) {
                     $file = $request->file('file');
                     $fileName = filename($file, 'employee'); 
-                    $filePath = $file->storeAs('employee/resign', $fileName, 'public');
+                    $filePath = $file->storeAs(Path::EMPLOYEE_RESIGN, $fileName, 'public');
                 }
 
                 $this->employee->resign()->create([
@@ -144,23 +144,26 @@ class EmployeeAlgo
             DB::transaction(function () use($request){
                 $user = Auth::user();
 
-                if ($this->employee && $this->employee->user != EmployeeUserRole::ADMIN_ID) {
-                    $request->except('existingPassword');
-                    $this->employee->user()->update([
+                if ($this->employee) {
+                    if($this->employee->user->role != EmployeeUserRole::ADMIN_ID){
+                        $request->except('existingPassword');
+                        $this->employee->user()->update([
+                            'password' => Hash::make($request->newPassword)
+                        ]);
+                    }
+                    else {
+                        errEmployeeChangePassword();
+                    }
+                }
+                else {
+                    if (!Hash::check($request->existingPassword, $user->password)) {
+                        errOldPasswordNotMatch();
+                    }
+    
+                    $user->update([
                         'password' => Hash::make($request->newPassword)
                     ]);
                 }
-                else {
-                    errEmployeeChangePassword();
-                }
-
-                if (!Hash::check($request->existingPassword, $user->password)) {
-                    errOldPasswordNotMatch();
-                }
-
-                $user->update([
-                    'password' => Hash::make($request->newPassword)
-                ]);
             });
             return success();
         } 
@@ -172,7 +175,7 @@ class EmployeeAlgo
     public function changeRoleToAdmin(){
         try {
             DB::transaction(function (){
-                // $this->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE,'role');
+                $this->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE,'role');
                 
                 if ($this->employee->user->role == EmployeeUserRole::ADMIN_ID) {
                     errEmployeeUserAdmin();
@@ -182,8 +185,8 @@ class EmployeeAlgo
                     'role' => EmployeeUserRole::ADMIN_ID
                 ]);
 
-                // $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE,'role')
-                // ->saveActivity("Update Employee role to admin {$this->employee->name}, [{$this->employee->id}]");
+                $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE,'role')
+                ->saveActivity("Update Employee role to admin {$this->employee->name}, [{$this->employee->id}]");
 
             });
             return success($this->employee);
@@ -208,6 +211,8 @@ class EmployeeAlgo
         }
     }
 
+    
+
     /** FUNCTIONS */
     private function saveEmployee(Request $request){
         $user = Auth::user();
@@ -224,8 +229,8 @@ class EmployeeAlgo
         }
 
         $createdBy = [
-            'createdBy' => $user?->employeeId,
-            'createdByName' => $user->employee?->name
+            'createdBy' => $user->employeeId,
+            'createdByName' => $user->employee->name
         ];
 
         return Employee::create($form + [
@@ -248,9 +253,14 @@ class EmployeeAlgo
     }
 
     private function validateEmail(Request $request) {
-        $email = EmployeeUser::where('email',$request->email)
-            ->where('employeeId','!=',$this->employee->id)
-            ->first();
+        $query = EmployeeUser::where('email',$request->email);
+        
+        if ($this->employee) {
+            $query->where('employeeId','!=',$this->employee->id);
+        }
+        
+        $email = $query->first();
+        
         if ($email) {
             errEmployeeEmailUnique();
         }
@@ -261,8 +271,10 @@ class EmployeeAlgo
         if ($request->has('password')) {
             $form['password'] = Hash::make($request->password);
         }
+        if(!$this->employee){
+            $form['role'] = EmployeeUserRole::USER_ID;
+        }
         $form['email'] = $request->email;
-        $form['role'] = EmployeeUserRole::USER_ID;
 
         return $this->employee->saveUser($form);
     }
@@ -286,7 +298,7 @@ class EmployeeAlgo
 
                 $file = $request->file('photo');
                 $fileName = filename($file, 'employee');
-                $filePath = $file->storeAs('employee', $fileName, 'public'); 
+                $filePath = $file->storeAs(Path::EMPLOYEE, $fileName, 'public'); 
             } else {
                 $filePath = $oldPhotoPath; 
             }
@@ -294,7 +306,7 @@ class EmployeeAlgo
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
                 $fileName = filename($file, 'employee'); 
-                $filePath = $file->storeAs('employee', $fileName, 'public');
+                $filePath = $file->storeAs(Path::EMPLOYEE, $fileName, 'public');
             }
         }
     

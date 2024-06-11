@@ -15,13 +15,15 @@ use Illuminate\Http\Request;
 class EmployeeController extends Controller
 {
     //
-    public function get(Request $request){
+    public function get(Request $request)
+    {
         $employee = Employee::filter($request)->getOrPaginate($request);
 
         return success($employee);
     }
 
-    public function getById($id){
+    public function getById($id)
+    {
         $employee = Employee::find($id);
 
         if (!$employee) {
@@ -31,13 +33,15 @@ class EmployeeController extends Controller
         return success(EmployeeParser::first($employee));
     }
 
-    public function create(EmployeeRequest $request){
-        $algo =  new EmployeeAlgo();
+    public function create(EmployeeRequest $request)
+    {
+        $algo = new EmployeeAlgo();
 
         return $algo->create($request);
     }
 
-    public function update($id, UpdateEmployeeRequest $request){
+    public function update($id, UpdateEmployeeRequest $request)
+    {
         $employee = Employee::find($id);
         if (!$employee) {
             errEmployeeNotFound();
@@ -47,9 +51,10 @@ class EmployeeController extends Controller
         return $algo->update($request);
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         $employee = Employee::find($id);
-        if(!$employee){
+        if (!$employee) {
             errEmployeeNotFound();
         }
 
@@ -57,9 +62,10 @@ class EmployeeController extends Controller
         return $algo->delete();
     }
 
-    public function resign($id,EmployeeResignRequest $request){
+    public function resign($id, EmployeeResignRequest $request)
+    {
         $employee = Employee::find($id);
-        if(!$employee){
+        if (!$employee) {
             errEmployeeNotFound();
         }
 
@@ -67,7 +73,8 @@ class EmployeeController extends Controller
         return $algo->resign($request);
     }
 
-    public function promoteAdmin($id){
+    public function promoteAdmin($id)
+    {
         $employee = Employee::find($id);
         if (!$employee) {
             errEmployeeNotFound();
@@ -77,14 +84,16 @@ class EmployeeController extends Controller
         return $algo->changeRoleToAdmin();
     }
 
-    public function resetPassword(ResetPasswordRequest $request, $id = null){
-        $employee = Employee::find($id) ?? null;
+    public function resetPassword(ResetPasswordRequest $request, $id = null)
+    {
+        $employee = Employee::find($id);
 
         $algo = new EmployeeAlgo($employee);
         return $algo->resetPassword($request);
     }
 
-    public function updateStatusResign($id){
+    public function updateStatusResign($id)
+    {
         $employee = Employee::find($id);
         if (!$employee) {
             errEmployeeNotFound();
