@@ -11,6 +11,7 @@ use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Models\Employee\Employee;
 use App\Parser\Employee\EmployeeParser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EmployeeController extends Controller
 {
@@ -31,6 +32,13 @@ class EmployeeController extends Controller
         }
 
         return success(EmployeeParser::first($employee));
+    }
+
+    public function personalInfo()
+    {
+        $user = Auth::user();
+
+        return success(EmployeeParser::first($user->employee));
     }
 
     public function create(EmployeeRequest $request)

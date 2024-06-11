@@ -15,5 +15,6 @@ Route::prefix('employees')->group(function() {
             Route::post('/{id}/update-status-resign', [EmployeeController::class, 'updateStatusResign']);
         });
         Route::post('/{id}/resign', [EmployeeController::class, 'resign'])->middleware('role:user,admin');
+        Route::get('/personal/info', [EmployeeController::class, 'personalInfo'])->middleware('role:user,admin');
         Route::post('/personal/reset-password', [EmployeeController::class, 'resetPassword'])->middleware('role:user,admin');
 });
