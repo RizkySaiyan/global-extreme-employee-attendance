@@ -17,6 +17,7 @@ return new class extends Migration
     {
         Schema::create('attendance_shifts', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->time('startTime');
             $table->time('endTime');
             $this->getDefaultCreatedBy($table);
