@@ -5,7 +5,7 @@ namespace App\Models\Attendance\Traits;
 use App\Models\Activity\Traits\HasActivity;
 use App\Services\Constant\Activity\ActivityType;
 
-trait HasActivityShiftProperty
+trait HasActivityPublicHolidayProperty
 {
     use HasActivity;
 
@@ -15,7 +15,7 @@ trait HasActivityShiftProperty
      */
     public function getActivityType(): string
     {
-        return ActivityType::SHIFT;
+        return ActivityType::PUBLIC_HOLIDAY;
     }
 
     /**

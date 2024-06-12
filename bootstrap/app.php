@@ -42,4 +42,5 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })->withSchedule(function () {
         Schedule::command('app:update-resign')->dailyAt('00:00');
+        Schedule::command('app:set-weekly-day-off-command');
     })->create();
