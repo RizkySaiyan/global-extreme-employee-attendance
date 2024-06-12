@@ -32,7 +32,7 @@ class EmployeeAlgo
     {
         try {
             DB::transaction(function () use ($request) {
-   
+
                 $this->employeeResignCheck($request);
                 $this->validateEmail($request);
                 $this->employee = $this->saveEmployee($request);
@@ -40,7 +40,7 @@ class EmployeeAlgo
                 if ($request->has('siblings')) {
                     $siblings = $this->saveSiblings($request);
                     if (!$siblings) {
-                       errEmployeeSiblingsSave();
+                        errEmployeeSiblingsSave();
                     }
                 }
 
@@ -50,7 +50,7 @@ class EmployeeAlgo
                 }
 
                 $this->employee->setActivityPropertyAttributes(ActivityAction::CREATE)
-                ->saveActivity("Enter new Employee :  {$this->employee->name}  [{$this->employee->id}]");
+                    ->saveActivity("Enter new Employee :  {$this->employee->name}  [{$this->employee->id}]");
             });
             return success($this->employee);
         } catch (Exception $exception) {
@@ -58,19 +58,20 @@ class EmployeeAlgo
         }
     }
 
-    public function update(Request $request){
+    public function update(Request $request)
+    {
         try {
-            DB::transaction(function() use($request){
+            DB::transaction(function () use ($request) {
 
                 $this->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
-                
+
                 $this->validateEmail($request);
                 $this->saveEmployee($request);
 
-                if($request->has('siblings')) {
+                if ($request->has('siblings')) {
                     $siblings = $this->saveSiblings($request);
                     if (!$siblings) {
-                       errEmployeeSiblingsSave();
+                        errEmployeeSiblingsSave();
                     }
                 }
 
@@ -80,7 +81,7 @@ class EmployeeAlgo
                 }
 
                 $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
-                ->saveActivity("Update Employee :  {$this->employee->name}  [{$this->employee->id}]");
+                    ->saveActivity("Update Employee :  {$this->employee->name}  [{$this->employee->id}]");
             });
             return success($this->employee->fresh());
         } catch (\Exception $exception) {
@@ -88,18 +89,19 @@ class EmployeeAlgo
         }
     }
 
-    public function delete(){
-        try { 
-            DB::transaction(function (){
+    public function delete()
+    {
+        try {
+            DB::transaction(function () {
                 $this->employee->setOldActivityPropertyAttributes(ActivityAction::DELETE);
 
                 // activate when employee has attendance
                 // DeleteEmployeeAttendance::dispatch($this->employee);
 
                 $this->employee->delete();
-                
+
                 $this->employee->setActivityPropertyAttributes(ActivityAction::DELETE)
-                ->saveActivity("Delete employee : {$this->employee->name} [{$this->employee->id}]");
+                    ->saveActivity("Delete employee : {$this->employee->name} [{$this->employee->id}]");
             });
             return success();
         } catch (Exception $exception) {
@@ -107,10 +109,11 @@ class EmployeeAlgo
         }
     }
 
-    public function resign(Request $request){
+    public function resign(Request $request)
+    {
         try {
-            DB::transaction(function() use($request){
-                if ($this->employee->resign){
+            DB::transaction(function () use ($request) {
+                if ($this->employee->resign) {
                     errEmployeeResignExist();
                 }
 
@@ -121,7 +124,7 @@ class EmployeeAlgo
 
                 if ($request->hasFile('file')) {
                     $file = $request->file('file');
-                    $fileName = filename($file, 'employee'); 
+                    $fileName = filename($file, 'employee');
                     $filePath = $file->storeAs(Path::EMPLOYEE_RESIGN, $fileName, 'public');
                 }
 
@@ -129,64 +132,38 @@ class EmployeeAlgo
                     'date' => $request->date,
                     'reason' => $request->reason,
                     'file' => $filePath
-                ] + $createdBy);           
+                ] + $createdBy);
             });
 
             return success($this->employee);
-
         } catch (\Exception $exception) {
             exception($exception);
         }
     }
 
-    public function resetPassword(ResetPasswordRequest $request, $id){
+    public function resetPassword(ResetPasswordRequest $request, $id)
+    {
         try {
-            DB::transaction(function () use($request, $id){
-                $user = Auth::user();
+            DB::transaction(function () use ($request, $id) {
 
                 if ($id) {
-                    $employee = Employee::find($id);
-                    if (!$employee) {
-                        return errEmployeeNotFound();
-                    }
-    
-                    if ($employee->user->role == EmployeeUserRole::ADMIN_ID) {
-                        return errEmployeeChangePassword();
-                    }
-                    $employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
-
-                    $employee->user->update([
-                        'password' => Hash::make($request->newPassword)
-                    ]);
-                    $employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
-                    ->saveActivity("Reset employee password : {$employee->name} [$employee->number]");
-
+                    $this->resetPasswordByAdmin($id, $request);
                 } else {
-                    if (!Hash::check($request->existingPassword, $user->password)) {
-                        errOldPasswordNotMatch();
-                    }
-                    $user->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
-
-                    $user->update([
-                        'password' => Hash::make($request->newPassword)
-                    ]);
-
-                    $user->employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
-                    ->saveActivity("Reset employee password : {$user->employee->name} [{$user->employee->number}]");
+                    $this->resetPasswordByPersonal($request);
                 }
             });
             return success();
-        } 
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             exception($exception);
         }
     }
 
-    public function changeRoleToAdmin(){
+    public function changeRoleToAdmin()
+    {
         try {
-            DB::transaction(function (){
-                $this->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE,'role');
-                
+            DB::transaction(function () {
+                $this->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE, 'role');
+
                 if ($this->employee->user->role == EmployeeUserRole::ADMIN_ID) {
                     errEmployeeUserAdmin();
                 }
@@ -195,25 +172,23 @@ class EmployeeAlgo
                     'role' => EmployeeUserRole::ADMIN_ID
                 ]);
 
-                $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE,'role')
-                ->saveActivity("Update Employee role to admin {$this->employee->name}, [{$this->employee->id}]");
-
+                $this->employee->setActivityPropertyAttributes(ActivityAction::UPDATE, 'role')
+                    ->saveActivity("Update Employee role to admin {$this->employee->name}, [{$this->employee->id}]");
             });
             return success($this->employee);
-            
         } catch (\Exception $exception) {
             exception($exception);
         }
     }
 
-    public function updateStatusResign(){
+    public function updateStatusResign()
+    {
         try {
-            DB::transaction(function (){
+            DB::transaction(function () {
 
                 $this->employee->resign()->update([
                     'isResign' => false
                 ]);
-
             });
             success($this->employee);
         } catch (\Exception $exception) {
@@ -222,15 +197,16 @@ class EmployeeAlgo
     }
 
     /** FUNCTIONS */
-    private function saveEmployee(Request $request){
+    private function saveEmployee(Request $request)
+    {
         $user = Auth::user();
-        $form = $request->except(['siblings','password']);
+        $form = $request->except(['siblings', 'password']);
 
         if ($request->hasFile('photo')) {
             $form['photo'] = $this->processFile($request);
         }
 
-        if($this->employee){
+        if ($this->employee) {
             $this->employee->update($form);
             $this->employee->refresh();
             return $this->employee;
@@ -246,40 +222,13 @@ class EmployeeAlgo
         ] + $createdBy);
     }
 
-    private function employeeResignCheck($request){
-        $existingUser = EmployeeUser::whereHas('employee', function($query) use($request){
-            $query->where('name',$request->name);
-        })->where('email',$request->email)->first();
-
-        if ($existingUser) {
-            $resign = $existingUser->employee->resign;
-            if($resign && Carbon::parse($resign->date)->diffInYears(now()) < 1){
-               return errEmployeeResign();
-            }
-            $existingUser->delete();
-        }
-    }
-
-    private function validateEmail(Request $request) {
-        $query = EmployeeUser::where('email',$request->email);
-        
-        if ($this->employee) {
-            $query->where('employeeId','!=',$this->employee->id);
-        }
-        
-        $email = $query->first();
-        
-        if ($email) {
-            errEmployeeEmailUnique();
-        }
-    }
-
-    private function saveEmployeeUser(Request $request){
+    private function saveEmployeeUser(Request $request)
+    {
         $form = [];
         if ($request->has('password')) {
             $form['password'] = Hash::make($request->password);
         }
-        if(!$this->employee->user){
+        if (!$this->employee->user) {
             $form['role'] = EmployeeUserRole::USER_ID;
         }
         $form['email'] = $request->email;
@@ -287,18 +236,85 @@ class EmployeeAlgo
         return $this->employee->saveUser($form);
     }
 
-    private function saveSiblings(Request $request){
+    private function saveSiblings(Request $request)
+    {
         return $this->employee->saveSiblings($request->siblings);
     }
 
+    private function resetPasswordByAdmin($id, $request)
+    {
+        $employee = Employee::find($id);
+        if (!$employee) {
+            return errEmployeeNotFound();
+        }
+
+        if ($employee->user->role == EmployeeUserRole::ADMIN_ID) {
+            return errEmployeeChangePassword();
+        }
+        $employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
+
+        $employee->user->update([
+            'password' => Hash::make($request->newPassword)
+        ]);
+
+        $employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
+            ->saveActivity("Reset employee password : {$employee->name} [$employee->number]");
+    }
+
+    private function resetPasswordByPersonal($request)
+    {
+        $user = Auth::user();
+
+        if (!Hash::check($request->existingPassword, $user->password)) {
+            errOldPasswordNotMatch();
+        }
+        $user->employee->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
+
+        $user->update([
+            'password' => Hash::make($request->newPassword)
+        ]);
+
+        $user->employee->setActivityPropertyAttributes(ActivityAction::UPDATE)
+            ->saveActivity("Reset employee password : {$user->employee->name} [{$user->employee->number}]");
+    }
+
+    private function employeeResignCheck($request)
+    {
+        $existingUser = EmployeeUser::whereHas('employee', function ($query) use ($request) {
+            $query->where('name', $request->name);
+        })->where('email', $request->email)->first();
+
+        if ($existingUser) {
+            $resign = $existingUser->employee->resign;
+            if ($resign && Carbon::parse($resign->date)->diffInYears(now()) < 1) {
+                return errEmployeeResign();
+            }
+            $existingUser->delete();
+        }
+    }
+
+    private function validateEmail(Request $request)
+    {
+        $query = EmployeeUser::where('email', $request->email);
+
+        if ($this->employee) {
+            $query->where('employeeId', '!=', $this->employee->id);
+        }
+
+        $email = $query->first();
+
+        if ($email) {
+            errEmployeeEmailUnique();
+        }
+    }
 
     private function processFile(Request $request)
     {
         $filePath = null;
-    
+
         if ($this->employee) {
             $oldPhotoPath = $this->employee->photo;
-            
+
             if ($request->hasFile('photo')) {
                 if ($oldPhotoPath && Storage::disk('public')->exists($oldPhotoPath)) {
                     Storage::disk('public')->delete($oldPhotoPath);
@@ -306,18 +322,18 @@ class EmployeeAlgo
 
                 $file = $request->file('photo');
                 $fileName = filename($file, 'employee');
-                $filePath = $file->storeAs(Path::EMPLOYEE, $fileName, 'public'); 
+                $filePath = $file->storeAs(Path::EMPLOYEE, $fileName, 'public');
             } else {
-                $filePath = $oldPhotoPath; 
+                $filePath = $oldPhotoPath;
             }
         } else {
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
-                $fileName = filename($file, 'employee'); 
+                $fileName = filename($file, 'employee');
                 $filePath = $file->storeAs(Path::EMPLOYEE, $fileName, 'public');
             }
         }
-    
+
         return $filePath;
     }
 }

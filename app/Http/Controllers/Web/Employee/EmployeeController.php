@@ -18,9 +18,9 @@ class EmployeeController extends Controller
     //
     public function get(Request $request)
     {
-        $employee = Employee::filter($request)->getOrPaginate($request);
+        $employee = Employee::filter($request)->with('companyOffice')->getOrPaginate($request);
 
-        return success($employee);
+        return success(EmployeeParser::briefs($employee));
     }
 
     public function getById($id)
@@ -93,9 +93,9 @@ class EmployeeController extends Controller
     }
 
     public function resetPassword(ResetPasswordRequest $request, $id = null)
-    {    
+    {
         $algo = new EmployeeAlgo();
-        return $algo->resetPassword($request,$id);
+        return $algo->resetPassword($request, $id);
     }
 
     public function updateStatusResign($id)

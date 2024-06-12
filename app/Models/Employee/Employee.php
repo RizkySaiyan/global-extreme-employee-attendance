@@ -3,6 +3,8 @@
 namespace App\Models\Employee;
 
 use App\Models\BaseModel;
+use App\Models\Component\CompanyOffice;
+use App\Models\Component\Department;
 use App\Models\Employee\Traits\HasActivityEmployeeProperty;
 use App\Parser\Employee\EmployeeParser;
 use App\Services\Constant\Employee\EmployeeUserRole;
@@ -25,28 +27,38 @@ class Employee extends BaseModel
         self::DELETED_AT => 'datetime'
     ];
 
-   
+
     /** SCOPES */
     public function scopeFilter($query, $request)
     {
 
-        return $query->where(function($query) use($request){
+        return $query->where(function ($query) use ($request) {
 
-            if($this->hasSearch($request)){
+            if ($this->hasSearch($request)) {
                 $query->Where('name', 'LIKE', "%$request->search%")
-                ->orWhere('number', 'LIKE', "%$request->search%");
+                    ->orWhere('number', 'LIKE', "%$request->search%");
             }
-            
-            if($request->has('role')){
-                $query->whereHas('user', function($query) use($request){
+
+            if ($request->has('role')) {
+                $query->whereHas('user', function ($query) use ($request) {
                     $query->where('role', $request->role);
                 });
             }
         });
     }
 
-  
+
     /** RELATIONSHIPS */
+    public function companyOffice()
+    {
+        return $this->belongsTo(CompanyOffice::class, 'companyOfficeId');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'departmentId');
+    }
+
     public function siblings()
     {
         return $this->hasMany(EmployeeSibling::class, 'employeeId');
