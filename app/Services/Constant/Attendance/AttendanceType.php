@@ -17,5 +17,8 @@ class AttendanceType extends BaseIDName
 
     const OPTION = [
         self::WEEKLY_DAY_OFF_ID => self::WEEKLY_DAY_OFF,
+        self::PUBLIC_HOLIDAY_ID => self::PUBLIC_HOLIDAY,
+        self::LEAVE_ID => self::LEAVE,
+        self::SHIFT_ID => self::SHIFT,
     ];
 }
