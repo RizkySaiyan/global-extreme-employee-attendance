@@ -13,7 +13,7 @@ class UpdateResignCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:update-resign';
+    protected $signature = 'app:update-resign-command';
 
     /**
      * The console command description.
@@ -30,9 +30,9 @@ class UpdateResignCommand extends Command
         //
         $today = Carbon::today()->format('Y-m-d');
 
-        Employee::whereHas('resign', function($query) use($today){
-            $query->where('date','<=',$today);
-        })->update(['isResign'=>true]);
+        Employee::whereHas('resign', function ($query) use ($today) {
+            $query->where('date', '<=', $today);
+        })->update(['isResign' => true]);
 
         $this->info('Employee resign status updated successfully.');
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Employee;
 
+use App\Models\Attendance\Schedule;
 use App\Models\BaseModel;
 use App\Models\Component\CompanyOffice;
 use App\Models\Component\Department;
@@ -74,9 +75,9 @@ class Employee extends BaseModel
         return $this->hasOne(EmployeeUser::class, 'employeeId');
     }
 
-    public function attendances()
+    public function schedules()
     {
-        return $this->hasMany('attendance', 'employeeId');
+        return $this->hasMany(Schedule::class, 'employeeId');
     }
 
 
