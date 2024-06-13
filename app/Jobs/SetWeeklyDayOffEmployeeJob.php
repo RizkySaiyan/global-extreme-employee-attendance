@@ -19,8 +19,11 @@ class SetWeeklyDayOffEmployeeJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public int $year)
+    public function __construct(public int $year, public ?Employee $employee)
     {
+        if ($employee) {
+            $this->employee = $employee;
+        }
         $this->year = $year;
     }
 
@@ -29,6 +32,7 @@ class SetWeeklyDayOffEmployeeJob implements ShouldQueue
      */
     public function handle(): void
     {
+        //TODO : Make this job run for setup one employee
         $sundays = [];
         $date = Carbon::create($this->year, 1, 1);
         if ($date->dayOfWeek != Carbon::SUNDAY) {
@@ -40,14 +44,20 @@ class SetWeeklyDayOffEmployeeJob implements ShouldQueue
             $date->addWeek();
         }
 
-        $employees = Employee::whereDoesntHave('schedules')->get();
+        $query = Employee::query();
+        if ($this->employee) {
+            $query->where('id', $this->employee);
+        }
+
+        $employees = $query->whereDoesntHave('schedules')->get();
         foreach ($employees as $employee) {
             foreach ($sundays as $sunday) {
                 Schedule::create([
                     'employeeId' => $employee->id,
                     'date' => $sunday,
                     'type' => AttendanceType::WEEKLY_DAY_OFF_ID,
-                    'reference' => null,
+                    'referenceId' => null,
+                    'reference' => AttendanceType::WEEKLY_DAY_OFF,
                     'createdBy' => 'System',
                     'createdByName' => 'System',
                 ]);

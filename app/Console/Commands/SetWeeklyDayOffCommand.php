@@ -32,6 +32,6 @@ class SetWeeklyDayOffCommand extends Command
     {
         //
         $year = now()->addYear()->year;
-        SetWeeklyDayOffEmployeeJob::dispatch($year);
+        SetWeeklyDayOffEmployeeJob::dispatch($year, null);
     }
 }

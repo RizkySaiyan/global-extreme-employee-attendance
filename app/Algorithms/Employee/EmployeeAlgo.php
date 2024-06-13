@@ -5,6 +5,7 @@ namespace App\Algorithms\Employee;
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\ResetPasswordRequest;
 use App\Jobs\DeleteEmployeeAttendance;
+use App\Jobs\SetWeeklyDayOffEmployeeJob;
 use App\Models\Employee\Employee;
 use App\Models\Employee\EmployeeUser;
 use App\Services\Constant\Activity\ActivityAction;
@@ -48,6 +49,8 @@ class EmployeeAlgo
                 if (!$employeeUser) {
                     errEmployeeUserSave();
                 }
+                //activate later
+                // SetWeeklyDayOffEmployeeJob::dispatch(now()->year, $this->employee);
 
                 $this->employee->setActivityPropertyAttributes(ActivityAction::CREATE)
                     ->saveActivity("Enter new Employee :  {$this->employee->name}  [{$this->employee->id}]");
