@@ -15,15 +15,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_leaves', function (Blueprint $table) {
+        Schema::create('employee_leave_balances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employeeId');
-            $table->date('fromDate');
-            $table->date('toDate');
-            $table->string('notes');
-            $table->integer('status');
-            $table->integer('approvedBy');
-            $table->string('approvedByName');
+            $table->integer('employeeId');
+            $table->unsignedInteger('balance');
             $this->getDefaultTimestamps($table);
             $this->getDefaultCreatedBy($table);
         });
@@ -34,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_leaves');
+        Schema::dropIfExists('employee_leave_balances');
     }
 };

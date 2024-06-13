@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('employeeId');
             $table->date('date');
             $table->integer('type');
+            $table->integer('referenceId')->nullable();
             $table->string('reference')->nullable();
             $this->getDefaultCreatedBy($table);
             $this->getDefaultTimestamps($table);

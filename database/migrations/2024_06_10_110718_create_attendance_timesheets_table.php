@@ -17,6 +17,7 @@ return new class extends Migration
     {
         Schema::create('attendance_timesheets', function (Blueprint $table) {
             $table->id();
+            $table->integer('employeeId');
             $table->dateTime('clockIn')->nullable();
             $table->dateTime('clockOut')->nullable();
             $table->integer('minuteLate')->default(0);
