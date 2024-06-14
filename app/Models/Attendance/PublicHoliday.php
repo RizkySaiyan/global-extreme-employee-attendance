@@ -17,4 +17,20 @@ class PublicHoliday extends BaseModel
         self::UPDATED_AT => 'datetime',
         self::DELETED_AT => 'datetime'
     ];
+
+    /** RELATIONSHIP */
+    public function schedule()
+    {
+        return $this->morphMany(Schedule::class, 'schedule', 'reference', 'referenceId');
+    }
+
+    /** FUNCTION */
+    public function delete()
+    {
+        if ($this->schedule) {
+            errPublicHolidayAssigned('Cannot delete');
+        }
+
+        return parent::delete();
+    }
 }

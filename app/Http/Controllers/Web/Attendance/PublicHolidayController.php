@@ -47,4 +47,17 @@ class PublicHolidayController extends Controller
         $algo = new PublicHolidayAlgo($publicHoliday);
         return $algo->delete();
     }
+
+    public function assignPublicHoliday($id)
+    {
+        $publicHoliday = PublicHoliday::find($id);
+
+        if (!$publicHoliday) {
+            errPublicHolidayNotFound();
+        }
+
+        $algo = new PublicHolidayAlgo($publicHoliday);
+
+        return $algo->assignPublicHoliday();
+    }
 }
