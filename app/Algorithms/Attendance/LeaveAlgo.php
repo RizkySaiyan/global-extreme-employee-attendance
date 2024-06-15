@@ -6,6 +6,7 @@ use App\Models\Attendance\Leave;
 use App\Models\Attendance\Traits\SaveSchedule;
 use App\Models\Employee\Employee;
 use App\Parser\Attendance\LeaveParser;
+use App\Services\Constant\Activity\ActivityAction;
 use App\Services\Constant\Attendance\LeaveBalance;
 use App\Services\Constant\Attendance\StatusType;
 use App\Services\Constant\Employee\EmployeeUserRole;
@@ -36,11 +37,36 @@ class LeaveAlgo
 
                 $this->leave = $this->saveLeave($request, $user);
 
+                $this->leave->setActivityPropertyAttributes(ActivityAction::CREATE)
+                    ->saveActivity("Enter new Leaves : {$this->leave->id}, [{$this->leave->name}]");
+
                 if ($user->role == EmployeeUserRole::ADMIN_ID) {
                     self::saveSchedule($this->leave, $this->leave->toArray());
                 }
             });
             return success($this->leave);
+        } catch (\Exception $exception) {
+            exception($exception);
+        }
+    }
+
+    public function delete()
+    {
+        try {
+            DB::transaction(function () {
+                $this->leave->setOldActivityPropertyAttributes(ActivityAction::DELETE);
+
+                if ($this->leave->createdAt->diffInMonths(now()) >= 1) {
+                    errLeaveDelete();
+                }
+
+                $this->leave->delete();
+                $this->leave->schedule()->delete();
+
+                $this->leave->setActivityPropertyAttributes(ActivityAction::DELETE)
+                    ->saveActivity("Delete leaves : {$this->leave->id} [{$this->leave->employeeId}]");
+            });
+            return success();
         } catch (\Exception $exception) {
             exception($exception);
         }
