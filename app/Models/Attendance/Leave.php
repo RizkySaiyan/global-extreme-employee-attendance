@@ -5,6 +5,7 @@ namespace App\Models\Attendance;
 use App\Models\Attendance\Traits\HasActivityLeaveProperty;
 use App\Models\Attendance\Traits\SaveSchedule;
 use App\Models\BaseModel;
+use App\Models\Employee\Employee;
 use App\Services\Constant\Attendance\AttendanceType;
 use App\Services\Constant\Attendance\LeaveBalance;
 use App\Services\Constant\Attendance\StatusType;
@@ -25,10 +26,25 @@ class Leave extends BaseModel
         self::DELETED_AT => 'datetime'
     ];
 
+    /** SCOPES */
+    public function scopeFilter($query, $request)
+    {
+        return $query->where(function ($query) use ($request) {
+            if ($request->has('status')) {
+                $query->where('status', $request->status);
+            }
+        });
+    }
+
     /** RELATIONSHIP */
     public function schedule()
     {
         return $this->morphMany(Schedule::class, 'schedule', 'reference', 'referenceId');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employeeId');
     }
 
     /** STATIC FUNCTION */

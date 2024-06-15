@@ -28,6 +28,7 @@ Route::prefix('attendances')->group(function () {
         Route::get('', [LeaveController::class, 'get']);
         Route::post('', [LeaveController::class, 'create'])->middleware('role:user,admin');
         Route::patch('/{id}', [LeaveController::class, 'approveLeaves'])->middleware('role:admin');
-        Route::get('/personal/balance', [LeaveController::class, 'checkBalance'])->middleware('role:admin,user');
+        Route::get('/personal', [LeaveController::class, 'getPersonal'])->middleware('role:admin,user');
+        Route::get('/personal/balances', [LeaveController::class, 'checkBalance'])->middleware('role:admin,user');
     });
 });
