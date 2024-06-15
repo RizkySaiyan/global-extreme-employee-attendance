@@ -22,8 +22,8 @@ return new class extends Migration
             $table->date('toDate');
             $table->string('notes');
             $table->integer('status');
-            $table->integer('approvedBy');
-            $table->string('approvedByName');
+            $table->integer('approvedBy')->nullable();
+            $table->string('approvedByName')->nullable();
             $this->getDefaultTimestamps($table);
             $this->getDefaultCreatedBy($table);
         });

@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 if (!function_exists('filename')) {
@@ -16,7 +17,6 @@ if (!function_exists('filename')) {
     {
         return ($keyId ? "$keyId-" : "") . Str::random(20) . str_shuffle(str_replace(' ', '', $text)) . '.' . ($extension ?: $file->getClientOriginalExtension());
     }
-
 }
 
 if (!function_exists('convert_string_to_array')) {
@@ -44,7 +44,6 @@ if (!function_exists('convert_string_to_array')) {
             return $value;
         })->values()->toArray();
     }
-
 }
 
 if (!function_exists("snake_to_camel_case")) {
@@ -58,7 +57,6 @@ if (!function_exists("snake_to_camel_case")) {
     {
         return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $text))));
     }
-
 }
 
 if (!function_exists("alphabet_from_number")) {
@@ -82,7 +80,6 @@ if (!function_exists("alphabet_from_number")) {
         }
         return null;
     }
-
 }
 
 if (!function_exists("storage_link")) {
@@ -100,5 +97,25 @@ if (!function_exists("storage_link")) {
 
         return config('base.conf.storage-link') . $path;
     }
+}
 
+if (!function_exists("generate_date_ranges")) {
+    /**
+     * @param string $fromDate
+     * @param string $toDate
+     * 
+     * @return array
+     */
+    function generate_date_ranges(string $fromDate, string $toDate)
+    {
+        $fromDate = Carbon::createFromDate($fromDate);
+        $toDate = Carbon::createFromDate($toDate);
+
+        $dates = [];
+        while ($fromDate->lte($toDate)) {
+            $dates[] = $fromDate->format('Y-m-d');
+            $fromDate->addDay();
+        }
+        return $dates;
+    }
 }

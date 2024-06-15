@@ -6,6 +6,7 @@ use App\Models\BaseModel;
 
 class Schedule extends BaseModel
 {
+
     protected $table = 'attendance_schedules';
     protected $guarded = ['id'];
 
@@ -15,4 +16,10 @@ class Schedule extends BaseModel
         self::DELETED_AT => 'datetime'
     ];
 
+    /** RELATIONSHIPS */
+
+    public function scheduleable()
+    {
+        return $this->morphTo('scheduleable', 'reference', 'referenceId')->whereNotNull('referenceId');
+    }
 }

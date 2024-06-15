@@ -27,9 +27,30 @@ if (!function_exists("errPublicHolidayNotFound")) {
     }
 }
 
-if (!function_exists("errLeaveMoteThanAWeek")) {
-    function errLeaveMoteThanAWeek($internalMsg = "", $status = null)
+if (!function_exists("errLeaveMoreThanAWeek")) {
+    function errLeaveMoreThanAWeek($internalMsg = "", $status = null)
     {
         error(400, "Cannot request leave more than a week !", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errLeaveNotFound")) {
+    function errLeaveNotFound($internalMsg = "", $status = null)
+    {
+        error(404, "Leaves not found !", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errLeaveExist")) {
+    function errLeaveExist($internalMsg = "", $status = null)
+    {
+        error(400, "Leave already exist in between dates !", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errLeaveBalance")) {
+    function errLeaveBalance($internalMsg = "", $status = null)
+    {
+        error(400, "Run out of leave balance !", $internalMsg, $status);
     }
 }
