@@ -53,6 +53,7 @@ class LeaveAlgo
                 $user = Auth::user();
 
                 $this->leave->update([
+                    'status' => StatusType::APPROVED_ID,
                     'approvedBy' => $user->employeeId,
                     'approvedByName' => $user->employee->name
                 ]);
