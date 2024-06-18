@@ -2,6 +2,7 @@
 
 namespace App\Parser\Attendance;
 
+use App\Models\Attendance\Schedule;
 use GlobalXtreme\Parser\BaseParser;
 
 class PublicHolidayParser extends BaseParser
@@ -16,8 +17,11 @@ class PublicHolidayParser extends BaseParser
         if (!$data) {
             return null;
         }
-
-        return parent::first($data);
+        $schedule = $data->schedule()->where('date', $data->date);
+        return [
+            'assigned' => $schedule->exists() ? true : false,
+            'name' => $data->name,
+            'date' => $data->date
+        ];
     }
-
 }
