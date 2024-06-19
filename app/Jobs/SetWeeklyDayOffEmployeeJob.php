@@ -59,7 +59,7 @@ class SetWeeklyDayOffEmployeeJob implements ShouldQueue
                     'date' => $sunday,
                     'type' => AttendanceType::WEEKLY_DAY_OFF_ID,
                     'referenceId' => null,
-                    'reference' => AttendanceType::WEEKLY_DAY_OFF,
+                    'reference' => null,
                     'createdBy' => 'System',
                     'createdByName' => 'System',
                 ]);
