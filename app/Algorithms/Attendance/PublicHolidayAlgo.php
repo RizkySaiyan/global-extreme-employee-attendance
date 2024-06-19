@@ -3,6 +3,7 @@
 namespace App\Algorithms\Attendance;
 
 use App\Http\Requests\Attendance\PublicHolidayRequest;
+use App\Jobs\AssignPublicHolidayJob;
 use App\Models\Attendance\PublicHoliday;
 use App\Models\Attendance\Schedule;
 use App\Models\Employee\Employee;
@@ -34,7 +35,7 @@ class PublicHolidayAlgo
 
                 $this->checkDate($request);
 
-                $this->publicHoliday = PublicHoliday::create($request->all() + $createdBy);
+                $this->publicHoliday = PublicHoliday::create($request->only('name', 'date') + $createdBy);
 
                 $this->publicHoliday->setActivityPropertyAttributes(ActivityAction::CREATE)
                     ->saveActivity("Enter new public holiday : {$this->publicHoliday->id}, [{$this->publicHoliday->name}]");
@@ -89,26 +90,12 @@ class PublicHolidayAlgo
 
                 $this->publicHoliday->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
 
-                $schedule = Schedule::where('date', $this->publicHoliday->date)->first();
-                if ($schedule) {
+                if ($this->publicHoliday->isAssigned == 1) {
                     errPublicHolidayAssigned();
                 }
 
-                $employees = Employee::whereDoesntHave('schedules', function ($query) {
-                    $query->whereDate('date', $this->publicHoliday->date);
-                })->get();
+                AssignPublicHolidayJob::dispatch($this->publicHoliday, $user);
 
-                foreach ($employees as $employee) {
-                    Schedule::create([
-                        'employeeId' => $employee->id,
-                        'date' => $this->publicHoliday->date,
-                        'type' => AttendanceType::PUBLIC_HOLIDAY_ID,
-                        'referenceId' => $this->publicHoliday->id,
-                        'reference' => PublicHoliday::class,
-                        'createdBy' => $user->employeeId,
-                        'createdByName' => $user->employee->name,
-                    ]);
-                }
                 $this->publicHoliday->setActivityPropertyAttributes(ActivityAction::UPDATE)
                     ->saveActivity("Assign public holiday to employe : {$this->publicHoliday->name}, [{$this->publicHoliday->date}]");
             });

@@ -5,6 +5,7 @@ namespace App\Parser\Attendance;
 use App\Models\Attendance\Leave;
 use App\Parser\Employee\EmployeeParser;
 use App\Services\Constant\Attendance\LeaveBalance;
+use App\Services\Constant\Attendance\LeaveConstant;
 use App\Services\Constant\Attendance\StatusType;
 use GlobalXtreme\Parser\BaseParser;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class LeaveParser extends BaseParser
      * @return array|null
      */
 
-    public static function first($data)
+    public static function brief($data)
     {
         if (!$data) {
             return null;
@@ -37,7 +38,7 @@ class LeaveParser extends BaseParser
         ];
     }
 
-    public static function getLeaves($collections)
+    public static function get($collections)
     {
         if (!$collections || count($collections) == 0) {
             return null;
@@ -78,7 +79,7 @@ class LeaveParser extends BaseParser
         return [
             'employeeId' => $data->employeeId,
             'name' => $data->employee->name,
-            'balance' => LeaveBalance::TOTAL_LEAVES - $leaves,
+            'balance' => LeaveConstant::LEAVE_BALANCE - $leaves,
             'used' => $leaves
         ];
     }

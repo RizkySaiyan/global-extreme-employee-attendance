@@ -16,11 +16,10 @@ class LeaveController extends Controller
     public function get(Request $request)
     {
         $leave = Leave::filter($request)->getOrPaginate($request);
-
-        return success(LeaveParser::getLeaves($leave));
+        return success(LeaveParser::getLeaves($leave), pagination: pagination($leave));
     }
 
-    public function getPersonal(Request $request)
+    public function personalLeaves(Request $request)
     {
         $user = Auth::user();
 
@@ -32,7 +31,6 @@ class LeaveController extends Controller
     public function create(LeaveRequest $request)
     {
         $algo = new LeaveAlgo();
-
         return $algo->create($request);
     }
 
@@ -61,7 +59,6 @@ class LeaveController extends Controller
     public function checkBalance()
     {
         $user = Auth::user();
-
         return success(LeaveParser::balance($user));
     }
 }

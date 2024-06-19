@@ -46,10 +46,12 @@ class SetWeeklyDayOffEmployeeJob implements ShouldQueue
 
         $query = Employee::query();
         if ($this->employee) {
-            $query->where('id', $this->employee);
+            $query->where('id', $this->employee->id);
         }
 
-        $employees = $query->whereDoesntHave('schedules')->get();
+        $employees = $query->whereDoesntHave('schedules', function ($query) {
+            $query->where('type', AttendanceType::WEEKLY_DAY_OFF_ID);
+        })->get();
         foreach ($employees as $employee) {
             foreach ($sundays as $sunday) {
                 Schedule::create([

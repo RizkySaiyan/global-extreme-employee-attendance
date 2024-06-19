@@ -6,11 +6,13 @@ use App\Models\Attendance\Traits\HasActivityLeaveProperty;
 use App\Models\Attendance\Traits\SaveSchedule;
 use App\Models\BaseModel;
 use App\Models\Employee\Employee;
+use App\Parser\Attendance\LeaveParser;
 use App\Services\Constant\Attendance\AttendanceType;
 use App\Services\Constant\Attendance\LeaveBalance;
 use App\Services\Constant\Attendance\StatusType;
 use App\Services\Constant\Employee\EmployeeUserRole;
 use Carbon\Carbon;
+use GlobalXtreme\Parser\Trait\HasParser;
 use Illuminate\Support\Facades\Auth;
 
 class Leave extends BaseModel
@@ -25,6 +27,8 @@ class Leave extends BaseModel
         self::UPDATED_AT => 'datetime',
         self::DELETED_AT => 'datetime'
     ];
+
+    protected $parserClass = LeaveParser::class;
 
     /** SCOPES */
     public function scopeFilter($query, $request)

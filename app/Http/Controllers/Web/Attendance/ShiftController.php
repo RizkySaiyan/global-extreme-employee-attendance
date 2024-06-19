@@ -15,21 +15,18 @@ class ShiftController extends Controller
     public function get(Request $request)
     {
         $shift = Shift::getOrPaginate($request);
-
         return success($shift);
     }
 
     public function create(ShiftRequest $request)
     {
         $algo = new ShiftAlgo();
-
         return $algo->create($request);
     }
 
     public function update($id, ShiftRequest $request)
     {
         $shift = Shift::find($id);
-
         if (!$shift) {
             errShiftNotFound();
         }
@@ -41,7 +38,6 @@ class ShiftController extends Controller
     public function delete($id)
     {
         $shift = Shift::find($id);
-
         if (!$shift) {
             errShiftNotFound();
         }

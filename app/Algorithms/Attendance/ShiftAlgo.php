@@ -25,7 +25,7 @@ class ShiftAlgo
                     'createdByName' => $user->employee->name
                 ];
 
-                $this->shift = Shift::create($request->all() + $createdBy);
+                $this->shift = Shift::create($request->only('name', 'startTime', 'endTime') + $createdBy);
 
                 $this->shift->setActivityPropertyAttributes(ActivityAction::CREATE)
                     ->saveActivity("Enter new Shifts : {$this->shift->name}, [{$this->shift->id}]");
@@ -42,7 +42,7 @@ class ShiftAlgo
             DB::transaction(function () use ($request) {
                 $this->shift->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
 
-                $this->shift->update($request->all());
+                $this->shift->update($request->only('name', 'startTime', 'endTime'));
 
                 $this->shift->setActivityPropertyAttributes(ActivityAction::UPDATE)
                     ->saveActivity("Update shift {$this->shift->id}, [{$this->shift->name}]");

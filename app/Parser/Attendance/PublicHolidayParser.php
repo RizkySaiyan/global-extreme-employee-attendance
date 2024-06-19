@@ -17,11 +17,11 @@ class PublicHolidayParser extends BaseParser
         if (!$data) {
             return null;
         }
-        $schedule = $data->schedule()->where('date', $data->date);
         return [
-            'assigned' => $schedule->exists() ? true : false,
+            'id' => $data->id,
             'name' => $data->name,
-            'date' => $data->date
+            'date' => $data->date,
+            'assigned' => $data->isAssigned ? true : false,
         ];
     }
 }

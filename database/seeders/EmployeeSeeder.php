@@ -16,10 +16,10 @@ class EmployeeSeeder extends Seeder
     public function run(): void
     {
         Employee::factory()
-        ->count(1000)
-        ->has(EmployeeUser::factory()->count(1),'user')
-        ->has(EmployeeSibling::factory()->count(2),'siblings')
-        ->create();
+            ->count(1)
+            ->has(EmployeeUser::factory()->count(1), 'user')
+            ->has(EmployeeSibling::factory()->count(2), 'siblings')
+            ->create();
     }
 
 
@@ -31,5 +31,4 @@ class EmployeeSeeder extends Seeder
             []
         );
     }
-
 }

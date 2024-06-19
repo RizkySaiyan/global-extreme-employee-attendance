@@ -9,6 +9,7 @@ use App\Models\Component\Department;
 use App\Models\Employee\Traits\HasActivityEmployeeProperty;
 use App\Parser\Employee\EmployeeParser;
 use App\Services\Constant\Employee\EmployeeUserRole;
+use GlobalXtreme\Parser\Trait\HasParser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -19,8 +20,8 @@ class Employee extends BaseModel
     use HasFactory;
 
     // protected $table = '';
-    public $parserClass = EmployeeParser::class;
     protected $guarded = ['id'];
+
     protected $casts = [
         'date' => 'datetime',
         self::CREATED_AT => 'datetime',
@@ -28,6 +29,7 @@ class Employee extends BaseModel
         self::DELETED_AT => 'datetime'
     ];
 
+    public $parserClass = EmployeeParser::class;
 
     /** SCOPES */
     public function scopeFilter($query, $request)

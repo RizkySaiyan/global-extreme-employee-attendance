@@ -3,11 +3,13 @@
 namespace App\Algorithms\Attendance;
 
 use App\Models\Attendance\Leave;
+use App\Models\Attendance\Schedule;
 use App\Models\Attendance\Traits\SaveSchedule;
 use App\Models\Employee\Employee;
 use App\Parser\Attendance\LeaveParser;
 use App\Services\Constant\Activity\ActivityAction;
 use App\Services\Constant\Attendance\LeaveBalance;
+use App\Services\Constant\Attendance\LeaveConstant;
 use App\Services\Constant\Attendance\StatusType;
 use App\Services\Constant\Employee\EmployeeUserRole;
 use Carbon\Carbon;
@@ -25,23 +27,27 @@ class LeaveAlgo
     public function create($request)
     {
         try {
+
             DB::transaction(function () use ($request) {
                 $user = Auth::user();
 
-                $this->dateValidation($request, $user);
-                $leaves = Leave::getEmployeeLeaves($user->employeeId);
+                $this->dateValidation($request);
+                $totalLeaves = Leave::getEmployeeLeaves($request->employeeId);
 
-                if ($leaves == 12) {
+                if ($totalLeaves == LeaveConstant::LEAVE_BALANCE) {
                     errLeaveBalance();
                 }
 
-                $this->leave = $this->saveLeave($request, $user);
+                $this->saveLeave($request, $user);
+                if (!$this->leave) {
+                    errLeaveSave();
+                }
 
                 $this->leave->setActivityPropertyAttributes(ActivityAction::CREATE)
                     ->saveActivity("Enter new Leaves : {$this->leave->id}, [{$this->leave->name}]");
 
                 if ($user->role == EmployeeUserRole::ADMIN_ID) {
-                    self::saveSchedule($this->leave, $this->leave->toArray());
+                    Schedule::saveSchedule($this->leave, $this->leave->toArray());
                 }
             });
             return success($this->leave);
@@ -53,6 +59,7 @@ class LeaveAlgo
     public function delete()
     {
         try {
+
             DB::transaction(function () {
                 $this->leave->setOldActivityPropertyAttributes(ActivityAction::DELETE);
 
@@ -75,6 +82,7 @@ class LeaveAlgo
     public function approveLeaves()
     {
         try {
+
             DB::transaction(function () {
                 $user = Auth::user();
 
@@ -83,7 +91,7 @@ class LeaveAlgo
                     'approvedBy' => $user->employeeId,
                     'approvedByName' => $user->employee->name
                 ]);
-                self::saveSchedule($this->leave, $this->leave->toArray());
+                Schedule::saveSchedule($this->leave, $this->leave->toArray());
             });
             return success($this->leave);
         } catch (\Exception $exception) {
@@ -92,7 +100,7 @@ class LeaveAlgo
     }
 
     /** FUNCTION */
-    public function saveLeave($request, $user)
+    private function saveLeave($request, $user)
     {
         $form = $request->all();
 
@@ -109,48 +117,22 @@ class LeaveAlgo
             $form['approvedByName'] = $user->employee->name;
             $form['status'] = StatusType::APPROVED_ID;
         }
-
-        $leave = Leave::create($form + $createdBy);
-
-        return $leave;
+        $this->leave = Leave::create($form + $createdBy);
     }
 
-    // private function employeeBalance($user)
-    // {
-    //     $year = now()->year;
-
-    //     $leave = Leave::where('employeeId', $user)
-    //         ->whereNotNull('approvedBy')
-    //         ->whereYear('fromDate', $year)
-    //         ->whereYear('toDate', $year)
-    //         ->pluck('toDate', 'fromDate');
-
-    //     $totalLeaves = 0;
-    //     $leave->each(function ($endDate, $startDate) use (&$totalLeaves) {
-    //         $start = Carbon::parse($startDate);
-    //         $end = Carbon::parse($endDate);
-
-    //         $days = $start->diffInDays($end);
-    //         $totalLeaves += $days;
-    //     });
-
-    //     return $totalLeaves;
-    // }
-
-    private function dateValidation($request, $user)
+    private function dateValidation($request)
     {
         $fromDate = Carbon::createFromDate($request->fromDate);
         $toDate = Carbon::createFromDate($request->toDate);
 
         $count = $fromDate->diffInDays($toDate);
-        if ($count >= Carbon::DAYS_PER_WEEK) {
+        if ($count >= LeaveConstant::LEAVE_REQUEST_LIMIT) {
             errLeaveMoreThanAWeek();
         }
 
-        $leaves = Leave::where('employeeId', $user->employeeId)
+        $leaves = Leave::where('employeeId', $request->employeeId)
             ->whereDate('fromDate', '<=', $request->toDate)
             ->whereDate('toDate', '>=', $request->fromDate)->first();
-
         if ($leaves) {
             errLeaveExist("Assigned dates, [fromDate : $leaves->fromDate, toDate : $leaves->toDate]");
         }

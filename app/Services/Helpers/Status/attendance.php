@@ -13,6 +13,13 @@ if (!function_exists("errAttendanceDateExist")) {
     }
 }
 
+if (!function_exists("errAttendanceTypeNotFound")) {
+    function errAttendanceTypeNotFound($internalMsg = "", $status = null)
+    {
+        error(400, "Run out of leave balance !", $internalMsg, $status);
+    }
+}
+
 if (!function_exists("errPublicHolidayAssigned")) {
     function errPublicHolidayAssigned($internalMsg = "", $status = null)
     {
@@ -24,6 +31,13 @@ if (!function_exists("errPublicHolidayNotFound")) {
     function errPublicHolidayNotFound($internalMsg = "", $status = null)
     {
         error(404, "Public Holiday not found !", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errLeaveSave")) {
+    function errLeaveSave($internalMsg = "", $status = null)
+    {
+        error(400, "Unable to save leave!", $internalMsg, $status);
     }
 }
 
@@ -45,6 +59,13 @@ if (!function_exists("errLeaveExist")) {
     function errLeaveExist($internalMsg = "", $status = null)
     {
         error(400, "Leave already exist in between dates !", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errLeaveDelete")) {
+    function errLeaveDelete($internalMsg = "", $status = null)
+    {
+        error(400, "Cannot delete leaves after a month!", $internalMsg, $status);
     }
 }
 

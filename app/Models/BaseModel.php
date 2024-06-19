@@ -34,15 +34,6 @@ class BaseModel extends Model
         return $query->whereBetween($key, [$fromDate, $toDate]);
     }
 
-    public function scopeSortBy($query, $column,$direction = 'asc'){
-        $sortBy = $this->hasSortBy($column);
-
-        $sortBy = explode(',', $column);
-        
-        return $query->orderBy($sortBy,$direction);
-    }  
-
-
     /** --- FUNCTIONS --- */
 
     public function hasSearch($request)
@@ -50,8 +41,8 @@ class BaseModel extends Model
         return $request->has('search') && strlen($request->search) >= 3;
     }
 
-    public function hasSortBy($request){
+    public function hasSortBy($request)
+    {
         return $request->has('sortBy');
     }
-
 }

@@ -5,6 +5,7 @@ namespace App\Models\Attendance;
 use App\Models\Attendance\Traits\HasActivityShiftProperty;
 use App\Models\BaseModel;
 use App\Parser\Attendance\ShiftParser;
+use GlobalXtreme\Parser\Trait\HasParser;
 
 class Shift extends BaseModel
 {
@@ -20,5 +21,4 @@ class Shift extends BaseModel
         self::UPDATED_AT => 'datetime',
         self::DELETED_AT => 'datetime'
     ];
-
 }
