@@ -39,6 +39,22 @@ class ScheduleAlgo
         }
     }
 
+    public function delete()
+    {
+        try {
+            DB::transaction(function () {
+                $this->schedule->setOldActivityPropertyAttributes(ActivityAction::DELETE);
+
+                $this->schedule->delete();
+
+                $this->schedule->setActivityPropertyAttributes(ActivityAction::DELETE)
+                    ->saveActivity("Delete schedule {$this->schedule->id}, [{$this->schedule->date}]");
+            });
+        } catch (\Exception $exception) {
+            exception($exception);
+        }
+    }
+
     /** FUNCTION */
     public function assignSchedule($request)
     {
@@ -46,7 +62,6 @@ class ScheduleAlgo
 
         switch ($request->type) {
             case AttendanceType::SHIFT_ID:
-                $request->type = AttendanceType::SHIFT_ID;
                 $scheduleable = Shift::find($request->reference);
                 if (!$scheduleable) {
                     errShiftNotFound();
@@ -54,15 +69,10 @@ class ScheduleAlgo
                 break;
 
             case AttendanceType::PUBLIC_HOLIDAY_ID:
-                $request->type = AttendanceType::PUBLIC_HOLIDAY_ID;
                 $scheduleable = PublicHoliday::find($request->reference);
                 if (!$scheduleable) {
                     errPublicHolidayNotFound();
                 }
-                break;
-
-            case AttendanceType::WEEKLY_DAY_OFF_ID:
-                $request->type = AttendanceType::WEEKLY_DAY_OFF_ID;
                 break;
             default:
                 errAttendanceTypeNotFound();
