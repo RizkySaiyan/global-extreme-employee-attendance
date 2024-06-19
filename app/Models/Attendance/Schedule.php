@@ -37,6 +37,17 @@ class Schedule extends BaseModel
         return $this->belongsTo(Employee::class, 'employeeId');
     }
 
+    /** SCOPES */
+    public function scopeFilter($query, $request)
+    {
+        return $query->where(function ($query) use ($request) {
+
+            if ($request->has('fromDate') && $request->has('toDate')) {
+                $query->ofDate('date', $request->fromDate, $request->toDate);
+            }
+        });
+    }
+
     /** STATIC FUNCTION */
     public static function saveSchedule($scheduleable, $attributes)
     {

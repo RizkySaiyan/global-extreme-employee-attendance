@@ -12,7 +12,7 @@ class ScheduleController extends Controller
 {
     public function get(Request $request)
     {
-        $schedule = Schedule::getOrPaginate($request);
+        $schedule = Schedule::filter($request)->getOrPaginate($request);
         return success($schedule);
     }
 
