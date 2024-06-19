@@ -38,7 +38,12 @@ Route::prefix('attendances')->group(function () {
 
     //Schedule
     Route::prefix('schedules')->group(function () {
-        Route::get('', [ScheduleController::class, 'get'])->middleware('role:admin,user');
-        Route::post('', [ScheduleController::class, 'create'])->middleware('role:admin');
+        Route::middleware('role:admin')->group(function () {
+            Route::post('', [ScheduleController::class, 'create']);
+            Route::delete('/{id}', [ScheduleController::class, 'delete']);
+        });
+        Route::middleware('role:admin,user')->group(function () {
+            Route::get('', [ScheduleController::class, 'get']);
+        });
     });
 });

@@ -14,8 +14,7 @@ class PublicHolidayController extends Controller
 {
     public function get(Request $request)
     {
-        //temporary, because i cant put orderBy in filter scopes
-        $publicHoliday = PublicHoliday::filter($request)->orderBy($request->sortBy, $request->direction)->getOrPaginate($request);
+        $publicHoliday = PublicHoliday::filter($request)->getOrPaginate($request);
         return success(PublicHolidayParser::get($publicHoliday));
     }
 
