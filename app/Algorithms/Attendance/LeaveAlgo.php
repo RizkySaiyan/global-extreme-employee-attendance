@@ -104,17 +104,17 @@ class LeaveAlgo
     {
         $form = $request->all();
 
-        $form['employeeId'] = $user->employeeId;
+        $form['employeeId'] = $request->employeeId;
         $form['status'] = StatusType::PENDING_ID;
 
         $createdBy = [
-            'createdBy' => $user->employeeId,
-            'createdByName' => $user->employee->name
+            'createdBy' => $request->employeeId,
+            'createdByName' => $request->employee->name
         ];
 
-        if ($user->role == EmployeeUserRole::ADMIN_ID) {
-            $form['approvedBy'] = $user->employeeId;
-            $form['approvedByName'] = $user->employee->name;
+        if ($user->role == EmployeerequestRole::ADMIN_ID) {
+            $form['approvedBy'] = $request->employeeId;
+            $form['approvedByName'] = $request->employee->name;
             $form['status'] = StatusType::APPROVED_ID;
         }
         $this->leave = Leave::create($form + $createdBy);
