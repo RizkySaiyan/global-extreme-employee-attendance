@@ -21,4 +21,12 @@ class ScheduleController extends Controller
         $algo = new ScheduleAlgo();
         return $algo->create($request);
     }
+
+    public function delete($id)
+    {
+        $schedule = Schedule::find($id);
+        if (!$schedule) {
+            errScheduleNotFound();
+        }
+    }
 }

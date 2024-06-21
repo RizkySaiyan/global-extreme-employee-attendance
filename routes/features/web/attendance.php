@@ -4,6 +4,8 @@ use App\Http\Controllers\Web\Attendance\LeaveController;
 use App\Http\Controllers\Web\Attendance\PublicHolidayController;
 use App\Http\Controllers\Web\Attendance\ScheduleController;
 use App\Http\Controllers\Web\Attendance\ShiftController;
+use App\Http\Controllers\Web\Attendance\TimesheetController;
+use App\Models\Attendance\Timesheets;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('attendances')->group(function () {
@@ -44,6 +46,13 @@ Route::prefix('attendances')->group(function () {
         });
         Route::middleware('role:admin,user')->group(function () {
             Route::get('', [ScheduleController::class, 'get']);
+        });
+    });
+
+    //Timesheets
+    Route::prefix('timesheets')->group(function () {
+        Route::middleware('role:admin,user')->group(function () {
+            Route::post('', [TimesheetController::class, 'attend']);
         });
     });
 });

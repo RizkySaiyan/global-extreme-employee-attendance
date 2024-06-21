@@ -22,7 +22,8 @@ class ScheduleAlgo
         try {
 
             DB::transaction(function () use ($request) {
-                $schedule = Schedule::where('date', $request->date);
+                $schedule = Schedule::where('date', $request->date)
+                    ->where('employeeId', $request->employeeId);
 
                 if ($schedule->exists()) {
                     errAttendanceDateExist();

@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::create('attendance_corrections', function (Blueprint $table) {
             $table->id();
-            $table->integer('employeeId');
+            $table->foreignId('employeeId');
             $table->date('date');
             $table->dateTime('clockIn');
             $table->dateTime('clockOut');

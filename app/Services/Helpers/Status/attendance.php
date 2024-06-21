@@ -16,7 +16,21 @@ if (!function_exists("errAttendanceDateExist")) {
 if (!function_exists("errAttendanceTypeNotFound")) {
     function errAttendanceTypeNotFound($internalMsg = "", $status = null)
     {
-        error(400, "Run out of leave balance !", $internalMsg, $status);
+        error(400, "Attendance type not found!", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errEmployeeNoSchedule")) {
+    function errEmployeeNoSchedule($internalMsg = "", $status = null)
+    {
+        error(400, "It's not your time to attend !", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errScheduleNotFound")) {
+    function errScheduleNotFound($internalMsg = "", $status = null)
+    {
+        error(400, "Schedule not found!", $internalMsg, $status);
     }
 }
 
