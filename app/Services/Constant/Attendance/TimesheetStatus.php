@@ -11,7 +11,7 @@ class TimesheetStatus extends BaseIDName
     const LATE_CLOCK_IN_ID = 2;
     const LATE_CLOCK_IN = 'late clock in';
     const EARLY_CLOCK_OUT_ID = 3;
-    const EARLY_CLOCK_OUT = 'late clock out';
+    const EARLY_CLOCK_OUT = 'early clock out';
     const NO_CLOCK_IN_ID = 4;
     const NO_CLOCK_IN = 'no clock in';
     const NO_CLOCK_OUT_ID = 5;

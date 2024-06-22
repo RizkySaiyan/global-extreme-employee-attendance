@@ -52,6 +52,7 @@ Route::prefix('attendances')->group(function () {
     //Timesheets
     Route::prefix('timesheets')->group(function () {
         Route::middleware('role:admin,user')->group(function () {
+            Route::get('', [TimesheetController::class, 'get']);
             Route::post('', [TimesheetController::class, 'attend']);
         });
     });

@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Parser\Attendance;
+
+use App\Models\Attendance\Timesheets;
+use App\Services\Constant\Attendance\StatusType;
+use App\Services\Constant\Attendance\TimesheetStatus;
+use GlobalXtreme\Parser\BaseParser;
+
+class TimesheetParser extends BaseParser
+{
+    /**
+     * @param $data
+     *
+     * @return array|null
+     */
+    public static function first($data)
+    {
+        if (!$data) {
+            return null;
+        }
+
+        return [
+            'id' => $data->id,
+            'employeeId' => $data->employee->only('id', 'name', 'email'),
+            'shiftId' => $data->shift->only('id', 'name', 'startTime', 'endTime'),
+            'clockIn' => [
+                'date' => $data->clockIn ?  $data->clockIn->format('d/m/y') : null,
+                'time' => $data->clockIn ?  $data->clockIn->format('H:i:s') : null,
+                'minuteLate' => $data->minuteLate
+            ],
+            'clockOut' => [
+                'date' => $data->clockOut ? $data->clockOut->format('d/m/y') : null,
+                'time' => $data->clockOut ? $data->clockOut->format('H:i:s') : null,
+                'minuteEarly' => $data->minuteEarly
+            ],
+
+            'status' => [
+                'id' => $data->status,
+                'status' => TimesheetStatus::display($data->status)
+            ],
+            'createdBy' => $data->createdByName
+        ];
+    }
+}
