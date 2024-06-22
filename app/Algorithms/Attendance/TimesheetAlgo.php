@@ -19,7 +19,7 @@ class TimesheetAlgo
     {
     }
 
-    public function attend()
+    public function attend(): mixed
     {
         $user = Auth::user();
         $now = Carbon::now();
@@ -37,7 +37,6 @@ class TimesheetAlgo
         if ($this->isWithinClockOutLimit($startTime, $endTime, $now)) {
             return $this->clockOut($schedule, $now, $endTime, $user);
         }
-        errEmployeeNoSchedule();
     }
 
 
@@ -71,7 +70,7 @@ class TimesheetAlgo
                     $this->createTimesheets($schedule, $user, $minuteLate, $now, $status);
                 }
             });
-            success($this->timesheets);
+            return success($this->timesheets);
         } catch (\Exception $exception) {
             exception($exception);
         }
