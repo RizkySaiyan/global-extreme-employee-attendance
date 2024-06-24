@@ -11,7 +11,9 @@ class TimesheetConstant
 
     //Time limit for clock in and clock out in minutes
     const CLOCK_IN_START = -120;
-    const CLOCK_IN_LIMIT = 240;
+    const CLOCK_IN_LIMIT = 240; // 4 Hours
 
-    const CLOCK_OUT_LIMIT = 300;
+    const CLOCK_OUT_LIMIT = 300; // 5 Hours
+
+    const WORK_HOURS = 14;
 }

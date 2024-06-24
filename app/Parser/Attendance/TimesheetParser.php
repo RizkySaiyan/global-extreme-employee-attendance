@@ -22,7 +22,11 @@ class TimesheetParser extends BaseParser
 
         return [
             'id' => $data->id,
-            'employeeId' => $data->employee->only('id', 'name', 'email'),
+            'employee' => [
+                'id' => $data->employee->id,
+                'name' => $data->employee->name,
+                'email' => $data->employee->user->email
+            ],
             'shiftId' => $data->shift->only('id', 'name', 'startTime', 'endTime'),
             'clockIn' => [
                 'date' => $data->clockIn ?  $data->clockIn->format('d/m/y') : null,
