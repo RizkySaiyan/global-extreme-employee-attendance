@@ -7,6 +7,7 @@ use App\Models\BaseModel;
 use App\Models\Component\CompanyOffice;
 use App\Models\Component\Department;
 use App\Models\Employee\Traits\HasActivityEmployeeProperty;
+use App\Models\Scopes\EmployeeNonResign;
 use App\Parser\Employee\EmployeeParser;
 use App\Services\Constant\Employee\EmployeeUserRole;
 use GlobalXtreme\Parser\Trait\HasParser;
@@ -129,5 +130,11 @@ class Employee extends BaseModel
         $this->siblings()->whereNotIn('id', $existingIds)->delete();
 
         return $this->siblings;
+    }
+
+    /** STATIC FUNCTIONS */
+    protected static function booted()
+    {
+        static::addGlobalScope(new EmployeeNonResign);
     }
 }
