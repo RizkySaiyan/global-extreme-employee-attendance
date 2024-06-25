@@ -34,6 +34,19 @@ if (!function_exists("errAttendanceCorrectionAssessment")) {
     }
 }
 
+if (!function_exists("errAttendanceTimesheetCannotAttend")) {
+    function errAttendanceTimesheetCannotAttend($internalMsg = "", $status = null)
+    {
+        error(400, "Cannot attend on this time !", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errAttendanceTimesheetAlreadyAttend")) {
+    function errAttendanceTimesheetAlreadyAttend($internalMsg = "", $status = null)
+    {
+        error(400, "You already attend !", $internalMsg, $status);
+    }
+}
 
 if (!function_exists("errEmployeeNoSchedule")) {
     function errEmployeeNoSchedule($internalMsg = "", $status = null)

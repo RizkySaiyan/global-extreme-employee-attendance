@@ -47,7 +47,7 @@ class TimesheetAlgo
             return $this->clockOut($schedule, $now, $endTime, $user, $isNightShift);
         }
 
-        return success();
+        errAttendanceTimesheetCannotAttend("Your Schedule start : $startTime");
     }
 
     private function clockIn($schedule, $now, $startTime, $user, $isNightShift): JsonResponse
@@ -62,12 +62,11 @@ class TimesheetAlgo
                 }
 
                 $this->timesheets = $this->getTimesheet($user->employeeId, $now, $isNightShift);
-                if (!$this->timesheets) {
-                    $this->createTimesheets($schedule, $user, $minuteLate, $now, $status);
+                if ($this->timesheets) {
+                    errAttendanceTimesheetAlreadyAttend();
                 }
 
-                $this->timesheets->setActivityPropertyAttributes(ActivityAction::CREATE)
-                    ->saveActivity("Attend ClockIn : {$this->timesheets->id}, [{$this->timesheets->clockIn}]");
+                $this->createTimesheets($schedule, $user, $minuteLate, $now, $status);
             });
             return success($this->timesheets);
         } catch (\Exception $exception) {
@@ -134,10 +133,6 @@ class TimesheetAlgo
 
     private function createTimesheets($schedule, $user, int $minuteValue, Carbon $now, int $status, bool $isClockOut = false)
     {
-        if ($isClockOut && $this->timesheets) {
-            // Avoid creating another clockOut entry if one already exists
-            return;
-        }
         $this->timesheets = Timesheets::create([
             'employeeId' => $user->employeeId,
             'shiftId' => $schedule->shiftId ?? $schedule->id,
@@ -147,6 +142,11 @@ class TimesheetAlgo
             'createdBy' => $user->employeeId,
             'createdByName' => $user->employee->name
         ]);
+
+        $attend = $isClockOut ? 'clock out' : 'clock in';
+
+        $this->timesheets->setActivityPropertyAttributes(ActivityAction::CREATE)
+            ->saveActivity("Attend " . $attend . ": {$this->timesheets->id}, [{$this->timesheets->employee->name}]");
     }
 
     private function getSchedule($user): Schedule|Shift
@@ -177,7 +177,11 @@ class TimesheetAlgo
                         ->whereNull('clockOut')
                         ->where(function ($query) use ($now) {
                             $query->whereRaw('TIMESTAMPDIFF(HOUR, clockIn, ?) <= ?', [$now, TimesheetConstant::WORK_HOURS])
-                                ->orWhereDate('clockIn', $now->toDateString());
+                                ->orWhereDate('clockIn', $now->toDateString())
+                                ->orWhere(function ($query) use ($now) {
+                                    $query->whereRaw('TIMESTAMPDIFF(HOUR, clockOut, ?) <= ?', [$now, TimesheetConstant::WORK_HOURS])
+                                        ->orWhereDate('clockOut', $now->toDateString());
+                                });
                         });
                 } else {
                     // Check for normal day shifts
