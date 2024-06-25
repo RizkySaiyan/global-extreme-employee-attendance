@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\Attendance\SetWeeklyDayOffJob;
 use App\Jobs\SetWeeklyDayOffEmployeeJob;
 use App\Models\Attendance\Schedule;
 use App\Models\Employee\Employee;
@@ -32,6 +33,6 @@ class SetWeeklyDayOffCommand extends Command
     {
         //
         $year = now()->addYear()->year;
-        SetWeeklyDayOffEmployeeJob::dispatch($year, null);
+        SetWeeklyDayOffJob::dispatch($year, null);
     }
 }

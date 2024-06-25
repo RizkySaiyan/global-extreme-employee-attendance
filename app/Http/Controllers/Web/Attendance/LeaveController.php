@@ -16,16 +16,16 @@ class LeaveController extends Controller
     public function get(Request $request)
     {
         $leave = Leave::filter($request)->getOrPaginate($request);
-        return success(LeaveParser::getLeaves($leave), pagination: pagination($leave));
+        return success(LeaveParser::get($leave), pagination: pagination($leave));
     }
 
-    public function personalLeaves(Request $request)
+    public function personalLeaves()
     {
         $user = Auth::user();
 
         $leave = Leave::where('employeeId', $user->employeeId)->get();
 
-        return success(LeaveParser::getLeaves($leave));
+        return success(LeaveParser::get($leave));
     }
 
     public function create(LeaveRequest $request)

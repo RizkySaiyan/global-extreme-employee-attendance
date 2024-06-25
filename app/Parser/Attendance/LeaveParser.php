@@ -18,7 +18,7 @@ class LeaveParser extends BaseParser
      * @return array|null
      */
 
-    public static function brief($data)
+    public static function first($data)
     {
         if (!$data) {
             return null;
@@ -26,6 +26,11 @@ class LeaveParser extends BaseParser
 
         return [
             'id' => $data->id,
+            'employee' => [
+                'id' => $data->employee->id,
+                'name' => $data->employee->name,
+                'email' => $data->employee->user->email
+            ],
             'fromDate' => $data->fromDate,
             'toDate' => $data->toDate,
             'notes' => $data->notes,
@@ -36,36 +41,6 @@ class LeaveParser extends BaseParser
             'createdByName' => $data->createdByName,
             'createdAt' => $data->createdAt
         ];
-    }
-
-    public static function get($collections)
-    {
-        if (!$collections || count($collections) == 0) {
-            return null;
-        }
-
-        $result = [];
-        $employeeMap = [];
-
-        foreach ($collections as $collection) {
-            $employeeId = $collection->employeeId;
-
-            if (!isset($employeeMap[$employeeId])) {
-                $employeeMap[$employeeId] = count($result);
-
-                $result[] = [
-                    'employee' => [
-                        'id' => $collection->employee->id,
-                        'name' => $collection->employee->name,
-                        'phone' => $collection->employee->phone
-                    ],
-                    'leaves' => []
-                ];
-            }
-
-            $result[$employeeMap[$employeeId]]['leaves'][] = self::brief($collection);
-        }
-        return $result;
     }
 
     public static function balance($data)

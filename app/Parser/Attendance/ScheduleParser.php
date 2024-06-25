@@ -12,61 +12,6 @@ use GlobalXtreme\Parser\BaseParser;
 class ScheduleParser extends BaseParser
 {
     /**
-     * @param $collections
-     *
-     * @return array|null
-     */
-    public static function get($collections)
-    {
-        if (!$collections || count($collections) == 0) {
-            return null;
-        }
-
-        $result = [];
-        $employeeMap = [];
-
-        foreach ($collections as $collection) {
-            $employeeId = $collection->employeeId;
-
-            if (!isset($employeeMap[$employeeId])) {
-                $employeeMap[$employeeId] = count($result);
-
-                $result[] = [
-                    'employee' => [
-                        'id' => $collection->employee->id,
-                        'name' => $collection->employee->name,
-                        'phone' => $collection->employee->phone
-                    ],
-                    'schedules' => []
-                ];
-            }
-
-            $result[$employeeMap[$employeeId]]['schedules'][] = self::brief($collection);
-        }
-        return $result;
-    }
-
-    /**
-     * @param $data
-     *
-     * @return array|null
-     */
-    public static function brief($data)
-    {
-        if (!$data) {
-            return null;
-        }
-
-        return [
-            'id' => $data->id,
-            'date' => $data->date,
-            'type' => AttendanceType::display($data->type),
-            'createdByName' => $data->createdByName,
-            'reference' => self::referenceBrief($data->scheduleable)
-        ];
-    }
-
-    /**
      * @param $data
      *
      * @return array|null
@@ -77,7 +22,22 @@ class ScheduleParser extends BaseParser
             return null;
         }
 
-        return parent::first($data);
+        $result = [
+            'employee' => [
+                'id' => $data->employee->id,
+                'name' => $data->employee->name,
+                'phone' => $data->employee->phone
+            ],
+            'schedules' => [
+                'id' => $data->id,
+                'date' => $data->date,
+                'type' => AttendanceType::display($data->type),
+                'createdByName' => $data->createdByName,
+                'reference' => self::referenceBrief($data->scheduleable)
+
+            ]
+        ];
+        return $result;
     }
 
     /** FUNCTION */

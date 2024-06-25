@@ -28,5 +28,8 @@ class ScheduleController extends Controller
         if (!$schedule) {
             errScheduleNotFound();
         }
+
+        $algo =  new ScheduleAlgo($schedule);
+        return $algo->delete();
     }
 }

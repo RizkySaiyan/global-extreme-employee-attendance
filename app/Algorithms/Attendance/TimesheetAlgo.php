@@ -5,11 +5,13 @@ namespace App\Algorithms\Attendance;
 use App\Models\Attendance\Schedule;
 use App\Models\Attendance\Shift;
 use App\Models\Attendance\Timesheets;
+use App\Services\Constant\Activity\ActivityAction;
 use App\Services\Constant\Attendance\AttendanceType;
 use App\Services\Constant\Attendance\TimesheetConstant;
 use App\Services\Constant\Attendance\TimesheetStatus;
 use Carbon\Carbon;
 use GlobalXtreme\Response\Response;
+use Illuminate\Http\Client\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -44,20 +46,8 @@ class TimesheetAlgo
         if ($this->isWithinClockOutLimit($startTime, $endTime, $now)) {
             return $this->clockOut($schedule, $now, $endTime, $user, $isNightShift);
         }
-    }
 
-
-    /** FUNCTIONS */
-    private function isWithinClockInLimit(Carbon $startTime, Carbon $now): bool
-    {
-        return $startTime->diffInMinutes($now) >= TimesheetConstant::CLOCK_IN_START
-            && $startTime->diffInMinutes($now) <= TimesheetConstant::CLOCK_IN_LIMIT;
-    }
-
-    private function isWithinClockOutLimit(Carbon $startTime, Carbon $endTime, Carbon $now): bool
-    {
-        return $endTime->diffInMinutes($now) <= TimesheetConstant::CLOCK_OUT_LIMIT
-            && $startTime->diffInMinutes($now) > TimesheetConstant::CLOCK_IN_LIMIT;
+        return success();
     }
 
     private function clockIn($schedule, $now, $startTime, $user, $isNightShift): JsonResponse
@@ -75,6 +65,9 @@ class TimesheetAlgo
                 if (!$this->timesheets) {
                     $this->createTimesheets($schedule, $user, $minuteLate, $now, $status);
                 }
+
+                $this->timesheets->setActivityPropertyAttributes(ActivityAction::CREATE)
+                    ->saveActivity("Attend ClockIn : {$this->timesheets->id}, [{$this->timesheets->clockIn}]");
             });
             return success($this->timesheets);
         } catch (\Exception $exception) {
@@ -87,7 +80,7 @@ class TimesheetAlgo
         try {
             DB::transaction(function () use ($schedule, $now, $endTime, $user, $isNightShift) {
 
-                $minuteEarly = $endTime->gt($now) ? (int) $now->diffInMinutes($endTime) : 0;
+                $minuteEarly = $endTime->gt($now) ? (int)$now->diffInMinutes($endTime) : 0;
                 $status = $this->clockOutStatus($now, $endTime);
 
                 $this->timesheets = $this->getTimesheet($user->employeeId, $now, $isNightShift);
@@ -109,19 +102,72 @@ class TimesheetAlgo
         }
     }
 
-    private function clockOutStatus(Carbon $now, Carbon $endTime): int
+    public function generate(Request $request)
     {
-        if ($endTime->gt($now)) {
-            return TimesheetStatus::EARLY_CLOCK_OUT_ID;
-        }
-        if ($this->timesheets && $this->timesheets->status == TimesheetStatus::LATE_CLOCK_IN_ID) {
-            return TimesheetStatus::LATE_CLOCK_IN_ID;
-        }
+        try {
+            $result = collect();
 
-        return TimesheetStatus::VALID_ID;
+            $timesheets = Timesheets::filter($request)
+                ->get()
+                ->keyBy(function ($timesheet) {
+                    return $timesheet->createdAt->format('Y-m-d');
+                });
+
+            $datePeriod = CarbonPeriod::between($request->fromDate, $request->toDate);
+            foreach ($datePeriod as $date) {
+                $timesheet = $timesheets->get($date->toDateString());
+
+                $result->push([
+                    'date' => $date->toDateString(),
+                    'clockIn' => ($timesheet && $timesheet->clockIn) ? $timesheet?->clockIn->toTimeString() : null,
+                    'clockOut' => ($timesheet && $timesheet->clockOut) ? $timesheet?->clockOut->toTimeString() : null,
+                    'status' => $timesheet ? TimesheetStatus::display($timesheet->status) : null
+                ]);
+            }
+            return $result;
+        } catch (\Exception $exception) {
+            exception($exception);
+        }
     }
 
-    private function getTimesheet($employeeId, Carbon $now, $isNightShift = false): Timesheets | null
+    /** FUNCTIONS */
+
+    private function createTimesheets($schedule, $user, int $minuteValue, Carbon $now, int $status, bool $isClockOut = false)
+    {
+        if ($isClockOut && $this->timesheets) {
+            // Avoid creating another clockOut entry if one already exists
+            return;
+        }
+        $this->timesheets = Timesheets::create([
+            'employeeId' => $user->employeeId,
+            'shiftId' => $schedule->shiftId ?? $schedule->id,
+            'minute' . ($isClockOut ? 'Early' : 'Late') => $minuteValue,
+            'clock' . ($isClockOut ? 'Out' : 'In') => $now,
+            'status' => $status,
+            'createdBy' => $user->employeeId,
+            'createdByName' => $user->employee->name
+        ]);
+    }
+
+    private function getSchedule($user): Schedule|Shift
+    {
+        $schedule = Schedule::where('employeeId', $user->employeeId)
+            ->whereDate('date', now()->format('Y-m-d'))
+            ->where('reference', Shift::class)->first();
+
+        if (!$schedule) {
+            $yesterday = now()->subDay();
+            $schedule = Schedule::where('employeeId', $user->employeeId)
+                ->whereDate('date', $yesterday)
+                ->where('reference', Shift::class)->first();
+        }
+
+        return $schedule ? $schedule->scheduleable : Shift::find(TimesheetConstant::DEFAULT_SHIFT_ID);
+    }
+
+
+
+    private function getTimesheet($employeeId, Carbon $now, $isNightShift = false): Timesheets|null
     {
         $yesterday = $now->copy()->subDay();
         $query = Timesheets::where('employeeId', $employeeId)
@@ -148,36 +194,30 @@ class TimesheetAlgo
         return $query->exists() ? $query->latest()->first() : null;
     }
 
-    private function createTimesheets($schedule, $user, int $minuteValue, Carbon $now, int $status, bool $isClockOut = false)
+
+    private function isWithinClockInLimit(Carbon $startTime, Carbon $now): bool
     {
-        if ($isClockOut && $this->timesheets) {
-            // Avoid creating another clockOut entry if one already exists
-            return;
-        }
-        $this->timesheets = Timesheets::create([
-            'employeeId' => $user->employeeId,
-            'shiftId' => $schedule->shiftId ?? $schedule->id,
-            'minute' . ($isClockOut ? 'Early' : 'Late') => $minuteValue,
-            'clock' . ($isClockOut ? 'Out' : 'In') => $now,
-            'status' => $status,
-            'createdBy' => $user->employeeId,
-            'createdByName' => $user->employee->name
-        ]);
+        return $startTime->diffInMinutes($now) >= TimesheetConstant::CLOCK_IN_START
+            && $startTime->diffInMinutes($now) <= TimesheetConstant::CLOCK_IN_LIMIT;
     }
 
-    private function getSchedule($user): Schedule | Shift
+    private function isWithinClockOutLimit(Carbon $startTime, Carbon $endTime, Carbon $now): bool
     {
-        $schedule = Schedule::where('employeeId', $user->employeeId)
-            ->whereDate('date', now()->format('Y-m-d'))
-            ->where('reference', Shift::class)->first();
+        return $endTime->diffInMinutes($now) <= TimesheetConstant::CLOCK_OUT_LIMIT
+            && $startTime->diffInMinutes($now) > TimesheetConstant::CLOCK_IN_LIMIT;
+    }
 
-        if (!$schedule) {
-            $yesterday = now()->subDay();
-            $schedule = Schedule::where('employeeId', $user->employeeId)
-                ->whereDate('date', $yesterday)
-                ->where('reference', Shift::class)->first();
+
+
+    private function clockOutStatus(Carbon $now, Carbon $endTime): int
+    {
+        if ($endTime->gt($now)) {
+            return TimesheetStatus::EARLY_CLOCK_OUT_ID;
+        }
+        if ($this->timesheets && $this->timesheets->status == TimesheetStatus::LATE_CLOCK_IN_ID) {
+            return TimesheetStatus::LATE_CLOCK_IN_ID;
         }
 
-        return $schedule ? $schedule->scheduleable : Shift::find(TimesheetConstant::DEFAULT_SHIFT_ID);
+        return TimesheetStatus::VALID_ID;
     }
 }

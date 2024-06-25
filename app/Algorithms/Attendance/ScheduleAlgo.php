@@ -40,22 +40,6 @@ class ScheduleAlgo
         }
     }
 
-    public function delete()
-    {
-        try {
-            DB::transaction(function () {
-                $this->schedule->setOldActivityPropertyAttributes(ActivityAction::DELETE);
-
-                $this->schedule->delete();
-
-                $this->schedule->setActivityPropertyAttributes(ActivityAction::DELETE)
-                    ->saveActivity("Delete schedule {$this->schedule->id}, [{$this->schedule->date}]");
-            });
-        } catch (\Exception $exception) {
-            exception($exception);
-        }
-    }
-
     /** FUNCTION */
     public function assignSchedule($request)
     {
@@ -80,5 +64,21 @@ class ScheduleAlgo
                 break;
         }
         return Schedule::saveSchedule($scheduleable, $request);
+    }
+
+    public function delete()
+    {
+        try {
+            DB::transaction(function () {
+                $this->schedule->setOldActivityPropertyAttributes(ActivityAction::DELETE);
+
+                $this->schedule->delete();
+
+                $this->schedule->setActivityPropertyAttributes(ActivityAction::DELETE)
+                    ->saveActivity("Delete schedule {$this->schedule->id}, [{$this->schedule->date}]");
+            });
+        } catch (\Exception $exception) {
+            exception($exception);
+        }
     }
 }

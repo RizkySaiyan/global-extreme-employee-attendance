@@ -4,9 +4,9 @@ namespace App\Models\Attendance;
 
 use App\Models\Attendance\Traits\HasActivityPublicHolidayProperty;
 use App\Models\BaseModel;
+use App\Models\Employee\Employee;
 use App\Parser\Attendance\PublicHolidayParser;
-use GlobalXtreme\Parser\Trait\HasParser;
-use Illuminate\Support\Facades\DB;
+use App\Services\Constant\Attendance\AttendanceType;
 
 class PublicHoliday extends BaseModel
 {
@@ -24,12 +24,14 @@ class PublicHoliday extends BaseModel
     protected $parserClass = PublicHolidayParser::class;
 
     /** RELATIONSHIP */
+
     public function schedule()
     {
         return $this->morphMany(Schedule::class, 'schedule', 'reference', 'referenceId');
     }
 
     /** SCOPES */
+
     public function scopeFilter($query, $request)
     {
         return $query->where(function ($query) use ($request) {
@@ -49,6 +51,7 @@ class PublicHoliday extends BaseModel
     }
 
     /** FUNCTION */
+
     public function delete()
     {
         if ($this->schedule) {
@@ -56,5 +59,33 @@ class PublicHoliday extends BaseModel
         }
 
         return parent::delete();
+    }
+
+    /** STATIC FUNCTION */
+
+    public function assignPublicHoliday($user)
+    {
+        $employees = Employee::whereDoesntHave('schedules', function ($query) {
+            $query->whereDate('date', $this->date)
+                ->whereNot('type', AttendanceType::PUBLIC_HOLIDAY_ID);
+        })->where('isResign', false)->get();
+
+        foreach ($employees as $employee) {
+            Schedule::updateOrCreate([
+                'employeeId' => $employee->employeeId,
+                'date' => $this->date
+            ], [
+                'employeeId' => $employee->id,
+                'date' => $this->date,
+                'type' => AttendanceType::PUBLIC_HOLIDAY_ID,
+                'referenceId' => $this->id,
+                'reference' => PublicHoliday::class,
+                'createdBy' => $user->employeeId,
+                'createdByName' => $user->employee->name,
+            ]);
+        }
+        $this->update([
+            'isAssigned' => true,
+        ]);
     }
 }

@@ -3,16 +3,9 @@
 namespace App\Algorithms\Attendance;
 
 use App\Http\Requests\Attendance\PublicHolidayRequest;
-use App\Jobs\AssignPublicHolidayJob;
+use App\Jobs\Attendance\AssignPublicHolidayJob;
 use App\Models\Attendance\PublicHoliday;
-use App\Models\Attendance\Schedule;
-use App\Models\Employee\Employee;
 use App\Services\Constant\Activity\ActivityAction;
-use App\Services\Constant\Activity\ActivityType;
-use App\Services\Constant\Attendance\AttendanceType;
-use App\Services\Constant\Attendance\StatusType;
-use App\Services\Constant\Employee\EmployeeUserRole;
-use GlobalXtreme\Response\Contract\Status;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -86,14 +79,13 @@ class PublicHolidayAlgo
     {
         try {
             DB::transaction(function () {
-                $user =  Auth::user();
+                $user = Auth::user();
 
                 $this->publicHoliday->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
 
                 if ($this->publicHoliday->isAssigned == 1) {
                     errPublicHolidayAssigned();
                 }
-
                 AssignPublicHolidayJob::dispatch($this->publicHoliday, $user);
 
                 $this->publicHoliday->setActivityPropertyAttributes(ActivityAction::UPDATE)

@@ -49,6 +49,10 @@ class Timesheets extends BaseModel
             if ($request->has('shiftId')) {
                 $query->where('shiftId', $request->shiftId);
             }
+
+            if ($request->has('employeeId')) {
+                $query->where('employeeId', $request->employeeId);
+            }
         });
     }
 }

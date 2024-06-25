@@ -49,43 +49,40 @@ class Schedule extends BaseModel
     }
 
     /** STATIC FUNCTION */
-    public static function saveSchedule($scheduleable, $attributes)
+    public static function setWeeklyDayOff($year, $employee)
     {
-        $user = Auth::user();
+        $sundays = [];
+        $date = Carbon::create($year, 1, 1);
+        if ($date->dayOfWeek != Carbon::SUNDAY) {
+            $date->modify('next sunday');
+        }
 
-        $createdBy = [
-            'createdBy' => $user->employeeId,
-            'createdByName' => $user->employee->name
-        ];
+        while ($date->year == $year->year) {
+            $sundays[] = $date->format('Y-m-d');
+            $date->addWeek();
+        }
 
-        if (isset($attributes['fromDate']) && isset($attributes['toDate'])) {
-            $dates = generate_date_ranges($attributes['fromDate'], $attributes['toDate']);
+        $query = Employee::query();
+        if ($employee) {
+            $query->where('id', $employee->id);
+        }
 
-            $attributes = [];
-            foreach ($dates as $date) {
-                $schedule = self::updateOrCreate([
-                    'employeeId' => $scheduleable->employeeId,
-                    'date' => $date
-                ], [
-                    'employeeId' => $scheduleable->employeeId,
-                    'date' => $date,
-                    'type' => AttendanceType::LEAVE_ID,
-                    'referenceId' => $scheduleable->id,
-                    'reference' => $scheduleable::class
-                ] + $createdBy);
+        $employees = $query->whereDoesntHave('schedules', function ($query) {
+            $query->where('type', AttendanceType::WEEKLY_DAY_OFF_ID);
+        })->get();
+
+        foreach ($employees as $employee) {
+            foreach ($sundays as $sunday) {
+                Schedule::create([
+                    'employeeId' => $employee->id,
+                    'date' => $sunday,
+                    'type' => AttendanceType::WEEKLY_DAY_OFF_ID,
+                    'referenceId' => null,
+                    'reference' => null,
+                    'createdBy' => 'System',
+                    'createdByName' => 'System',
+                ]);
             }
-            return $schedule;
-        } else {
-            return self::updateOrCreate([
-                'employeeId' => $attributes['employeeId'],
-                'date' => $attributes['date']
-            ], [
-                'employeeId' => $attributes['employeeId'],
-                'date' => $attributes['date'],
-                'type' => $attributes['type'],
-                'referenceId' => $scheduleable->id ?? null,
-                'reference' => $scheduleable ? get_class($scheduleable) : null
-            ] + $createdBy);
         }
     }
 }
