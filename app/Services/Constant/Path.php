@@ -8,4 +8,5 @@ class Path extends BaseIDName
 {
     const EMPLOYEE = 'employee';
     const EMPLOYEE_RESIGN = 'employee/resign';
+    const EMPLOYEE_TIMESHEET = 'employee/timesheet';
 }

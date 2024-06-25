@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Web\Attendance\CorrectionController;
 use App\Http\Controllers\Web\Attendance\LeaveController;
 use App\Http\Controllers\Web\Attendance\PublicHolidayController;
 use App\Http\Controllers\Web\Attendance\ScheduleController;
 use App\Http\Controllers\Web\Attendance\ShiftController;
 use App\Http\Controllers\Web\Attendance\TimesheetController;
+use App\Models\Attendance\Correction;
 use App\Models\Attendance\Timesheets;
 use Illuminate\Support\Facades\Route;
 
@@ -54,6 +56,19 @@ Route::prefix('attendances')->group(function () {
         Route::middleware('role:admin,user')->group(function () {
             Route::get('', [TimesheetController::class, 'get']);
             Route::post('', [TimesheetController::class, 'attend']);
+            Route::post('/generate-excel', [TimesheetController::class, 'generateTimesheetExcel']);
+        });
+    });
+
+    //Correction
+    Route::prefix('corrections')->group(function () {
+        Route::middleware('role:admin,user')->group(function () {
+            Route::post('', [CorrectionController::class, 'create']);
+            Route::get('', [CorrectionController::class, 'get']);
+        });
+        Route::middleware('role:admin')->group(function () {
+            Route::post('/{id}/approves', [CorrectionController::class, 'approves']);
+            Route::post('/{id}/disapproves', [CorrectionController::class, 'disapproves']);
         });
     });
 });

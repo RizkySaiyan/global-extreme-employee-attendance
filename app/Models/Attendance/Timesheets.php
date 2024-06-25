@@ -2,12 +2,16 @@
 
 namespace App\Models\Attendance;
 
+use App\Models\Attendance\Traits\HasActivityCorrectionProperty;
+use App\Models\Attendance\Traits\HasActivityTimesheetProperty;
 use App\Models\BaseModel;
 use App\Models\Employee\Employee;
 use App\Parser\Attendance\TimesheetParser;
 
 class Timesheets extends BaseModel
 {
+    use HasActivityTimesheetProperty;
+
     protected $table = 'attendance_timesheets';
     protected $guarded = ['id'];
 
@@ -31,6 +35,11 @@ class Timesheets extends BaseModel
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'employeeId');
+    }
+
+    public function correction()
+    {
+        return $this->hasOne(Correction::class, 'timesheetId');
     }
 
     /** SCOPES */

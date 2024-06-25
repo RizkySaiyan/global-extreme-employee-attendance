@@ -20,6 +20,21 @@ if (!function_exists("errAttendanceTypeNotFound")) {
     }
 }
 
+if (!function_exists("errAttendanceCorrectionNotFound")) {
+    function errAttendanceCorrectionNotFound($internalMsg = "", $status = null)
+    {
+        error(400, "Attendance correction not found!", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errAttendanceCorrectionAssessment")) {
+    function errAttendanceCorrectionAssessment($internalMsg = "", $status = null)
+    {
+        error(400, "Attendance correction has been assessed !", $internalMsg, $status);
+    }
+}
+
+
 if (!function_exists("errEmployeeNoSchedule")) {
     function errEmployeeNoSchedule($internalMsg = "", $status = null)
     {
