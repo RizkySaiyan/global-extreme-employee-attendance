@@ -27,7 +27,12 @@ class TimesheetParser extends BaseParser
                 'name' => $data->employee->name,
                 'email' => $data->employee->user->email
             ],
-            'shiftId' => $data->shift->only('id', 'name', 'startTime', 'endTime'),
+            'shift' => [
+                'id' => $data->shift->id,
+                'name' => $data->shift->name,
+                'startTime' => $data->shift->startTime,
+                'endTime' => $data->shift->endTime
+            ],
             'clockIn' => [
                 'date' => $data->clockIn ?  $data->clockIn->format('d/m/y') : null,
                 'time' => $data->clockIn ?  $data->clockIn->format('H:i:s') : null,

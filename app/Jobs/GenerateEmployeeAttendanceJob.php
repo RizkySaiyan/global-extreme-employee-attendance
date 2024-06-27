@@ -2,13 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Exports\Excel\TimesheetsExcel;
-use App\Services\Constant\Path;
+use App\Services\Constant\Path\Path;
+use App\Services\Excel\TimesheetsExcel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GenerateEmployeeAttendanceJob implements ShouldQueue
 {
@@ -17,11 +20,8 @@ class GenerateEmployeeAttendanceJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(string $fromDate, string $toDate, $employee)
+    public function __construct(public $fromDate, public $toDate, public $email)
     {
-        $this->fromDate = $fromDate;
-        $this->toDate = $toDate;
-        $this->employee = $employee;
     }
 
     /**
@@ -29,18 +29,17 @@ class GenerateEmployeeAttendanceJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $filePath = Path::EMPLOYEE_TIMESHEET . "/{$this->employee->name}_{$this->fromDate}_{$this->toDate}.xlsx";
-        Excel::store(new TimesheetsExcel($this->fromDate, $this->toDate, $this->employee->name), $filePath, 'local');
+        $filePath = Path::EMPLOYEE_TIMESHEET . "/Timesheet_excel.xlsx";
+        Excel::store(new TimesheetsExcel($this->fromDate, $this->toDate), $filePath, 'local');
 
-        $fileUrl = Storage::url($filePath);
         $fullFilePath = storage_path('app/' . $filePath);
 
         // Send email with the file attached
-        Mail::send([], [], function ($message) use ($fileUrl, $fullFilePath) {
-            $message->to($this->employee->email)
+        Mail::send([], [], function ($message) use ($fullFilePath) {
+            $message->to($this->email)
                 ->subject("Your timesheet")
                 ->attach($fullFilePath, [
-                    'as' => "{$this->employee->name}_{$this->fromDate}_{$this->toDate}.xlsx",
+                    'as' => "{{$this->fromDate}_{$this->toDate}.xlsx",
                     'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 ]);
         });

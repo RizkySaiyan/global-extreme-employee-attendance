@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Jobs\GenerateEmployeeAttendanceJob;
 use App\Models\Attendance\Timesheets;
 use App\Models\Employee\Employee;
+use App\Services\PDF\Attendance\TimesheetPDF;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TimesheetController extends Controller
 {
@@ -23,14 +25,17 @@ class TimesheetController extends Controller
         return $algo->attend();
     }
 
-    public function generateTimesheetExcel(Request $request)
+    public function generateExcel(Request $request)
     {
-        $employees = Employee::all();
+        $user = Auth::user();
+        GenerateEmployeeAttendanceJob::dispatch($request->fromDate, $request->toDate, $user->email);
 
-        foreach ($employees as $employee) {
-            GenerateEmployeeAttendanceJob::dispatch($request->fromDate, $request->toDate, $employee);
-        }
+        return success(internalMsg: "Excel will be sent to your email");
+    }
 
-        return success();
+    public function generatePdf(Request $request)
+    {
+        $service = new TimesheetPDF();
+        return $service->generate($request);
     }
 }

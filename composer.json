@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "barryvdh/laravel-dompdf": "^2.2",
         "globalxtreme/php-storage": "^1.0",
         "globalxtreme/rabbitmq": "2.0.17",
         "globalxtreme/response": "^2.0",

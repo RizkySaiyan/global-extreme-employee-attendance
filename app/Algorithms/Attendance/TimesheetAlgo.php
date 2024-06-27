@@ -6,12 +6,9 @@ use App\Models\Attendance\Schedule;
 use App\Models\Attendance\Shift;
 use App\Models\Attendance\Timesheets;
 use App\Services\Constant\Activity\ActivityAction;
-use App\Services\Constant\Attendance\AttendanceType;
 use App\Services\Constant\Attendance\TimesheetConstant;
 use App\Services\Constant\Attendance\TimesheetStatus;
 use Carbon\Carbon;
-use GlobalXtreme\Response\Response;
-use Illuminate\Http\Client\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -96,34 +93,6 @@ class TimesheetAlgo
                 }
             });
             return success($this->timesheets);
-        } catch (\Exception $exception) {
-            exception($exception);
-        }
-    }
-
-    public function generate(Request $request)
-    {
-        try {
-            $result = collect();
-
-            $timesheets = Timesheets::filter($request)
-                ->get()
-                ->keyBy(function ($timesheet) {
-                    return $timesheet->createdAt->format('Y-m-d');
-                });
-
-            $datePeriod = CarbonPeriod::between($request->fromDate, $request->toDate);
-            foreach ($datePeriod as $date) {
-                $timesheet = $timesheets->get($date->toDateString());
-
-                $result->push([
-                    'date' => $date->toDateString(),
-                    'clockIn' => ($timesheet && $timesheet->clockIn) ? $timesheet?->clockIn->toTimeString() : null,
-                    'clockOut' => ($timesheet && $timesheet->clockOut) ? $timesheet?->clockOut->toTimeString() : null,
-                    'status' => $timesheet ? TimesheetStatus::display($timesheet->status) : null
-                ]);
-            }
-            return $result;
         } catch (\Exception $exception) {
             exception($exception);
         }

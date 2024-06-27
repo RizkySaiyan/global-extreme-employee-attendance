@@ -7,6 +7,8 @@ use App\Models\BaseModel;
 use App\Models\Employee\Employee;
 use App\Parser\Attendance\PublicHolidayParser;
 use App\Services\Constant\Attendance\AttendanceType;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class PublicHoliday extends BaseModel
 {
@@ -61,8 +63,6 @@ class PublicHoliday extends BaseModel
         return parent::delete();
     }
 
-    /** STATIC FUNCTION */
-
     public function assignPublicHoliday($user)
     {
         $employees = Employee::whereDoesntHave('schedules', function ($query) {
@@ -87,5 +87,24 @@ class PublicHoliday extends BaseModel
         $this->update([
             'isAssigned' => true,
         ]);
+    }
+
+    /** STATIC FUNCTION */
+    public static function setPublicHolidayNewEmployee($year, $employee, $user)
+    {
+        $holidays = PublicHoliday::whereYear('date', $year)->get();
+        foreach ($holidays as $holiday) {
+            Schedule::updateOrCreate([
+                'date' => $holiday->date
+            ], [
+                'employeeId' => $employee->id,
+                'date' => $holiday->date,
+                'type' => AttendanceType::PUBLIC_HOLIDAY_ID,
+                'referenceId' => $holiday->id,
+                'reference' => PublicHoliday::class,
+                'createdBy' => $user->employeeId,
+                'createdByName' => $user->employee->name,
+            ]);
+        }
     }
 }

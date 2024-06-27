@@ -4,22 +4,18 @@ namespace App\Algorithms\Employee;
 
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\ResetPasswordRequest;
-use App\Jobs\Attendance\SetWeeklyDayOffJob;
-use App\Jobs\DeleteEmployeeAttendance;
-use App\Jobs\SetWeeklyDayOffEmployeeJob;
+use App\Jobs\Employee\SetNewEmployeeScheduleJob;
 use App\Models\Employee\Employee;
 use App\Models\Employee\EmployeeUser;
 use App\Services\Constant\Activity\ActivityAction;
-use App\Services\Constant\Activity\ActivityType;
 use App\Services\Constant\Employee\EmployeeUserRole;
-use App\Services\Constant\Path;
+use App\Services\Constant\Path\Path;
 use App\Services\Number\Generator\EmployeeNumber;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Exception;
-use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -34,6 +30,7 @@ class EmployeeAlgo
     {
         try {
             DB::transaction(function () use ($request) {
+                $user = Auth::user();
 
                 $this->employeeResignCheck($request);
                 $this->validateEmail($request);
@@ -51,7 +48,7 @@ class EmployeeAlgo
                     errEmployeeUserSave();
                 }
                 //activate later
-                SetWeeklyDayOffJob::dispatch(now()->year, $this->employee);
+                SetNewEmployeeScheduleJob::dispatch(now()->year, $this->employee, $user);
 
                 $this->employee->setActivityPropertyAttributes(ActivityAction::CREATE)
                     ->saveActivity("Enter new Employee :  {$this->employee->name}  [{$this->employee->id}]");
@@ -100,7 +97,7 @@ class EmployeeAlgo
                 $this->employee->setOldActivityPropertyAttributes(ActivityAction::DELETE);
 
                 // activate when employee has attendance
-                // DeleteEmployeeAttendance::dispatch($this->employee);
+                Delet::dispatch($this->employee);
 
                 $this->employee->delete();
 
@@ -194,7 +191,7 @@ class EmployeeAlgo
                     'isResign' => false
                 ]);
             });
-            success($this->employee);
+            return success($this->employee);
         } catch (\Exception $exception) {
             exception($exception);
         }

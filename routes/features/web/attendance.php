@@ -53,10 +53,13 @@ Route::prefix('attendances')->group(function () {
 
     //Timesheets
     Route::prefix('timesheets')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::post('/generate-excel', [TimesheetController::class, 'generateExcel']);
+            Route::post('/generate-pdf', [TimesheetController::class, 'generatePdf']);
+        });
         Route::middleware('role:admin,user')->group(function () {
             Route::get('', [TimesheetController::class, 'get']);
             Route::post('', [TimesheetController::class, 'attend']);
-            Route::post('/generate-excel', [TimesheetController::class, 'generateTimesheetExcel']);
         });
     });
 

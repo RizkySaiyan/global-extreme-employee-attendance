@@ -7,7 +7,7 @@ use App\Models\BaseModel;
 use App\Models\Employee\Employee;
 use App\Parser\Attendance\ScheduleParser;
 use App\Services\Constant\Attendance\AttendanceType;
-use GlobalXtreme\Parser\Trait\HasParser;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class Schedule extends BaseModel
@@ -49,7 +49,7 @@ class Schedule extends BaseModel
     }
 
     /** STATIC FUNCTION */
-    public static function setWeeklyDayOff($year, $employee)
+    public static function setWeeklyDayOff($year, $employee, $user)
     {
         $sundays = [];
         $date = Carbon::create($year, 1, 1);
@@ -57,7 +57,7 @@ class Schedule extends BaseModel
             $date->modify('next sunday');
         }
 
-        while ($date->year == $year->year) {
+        while ($date->year == $year) {
             $sundays[] = $date->format('Y-m-d');
             $date->addWeek();
         }
@@ -79,8 +79,8 @@ class Schedule extends BaseModel
                     'type' => AttendanceType::WEEKLY_DAY_OFF_ID,
                     'referenceId' => null,
                     'reference' => null,
-                    'createdBy' => 'System',
-                    'createdByName' => 'System',
+                    'createdBy' => $user ? $user->employeeId : 'System',
+                    'createdByName' => $user ? $user->employeeId : 'System',
                 ]);
             }
         }

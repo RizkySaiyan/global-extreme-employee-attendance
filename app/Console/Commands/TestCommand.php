@@ -82,17 +82,17 @@ class TestCommand extends Command
         // }
 
         $user = EmployeeUser::find(3);
-        $now = Carbon::create(2024, 6, 29, 22, 56);
+        $now = Carbon::create(2024, 6, 28, 23, 56);
 
         $schedule = $this->getSchedule($user);
-        $startTime = Carbon::parse($schedule->startTime)->addDays(5);
-        $endTime = Carbon::parse($schedule->endTime)->addDays(5);
+        $startTime = Carbon::parse($schedule->startTime)->addDays(2);
+        $endTime = Carbon::parse($schedule->endTime)->addDays(2);
         $isNightShift = false;
         if ($endTime->lt($startTime)) {
             $endTime->addDay();
             $isNightShift = true;
         }
-        // dd($schedule, $startTime, $endTime);
+        // dd($startTime);
         if ($this->isWithinClockInLimit($startTime, $now)) {
             return $this->clockIn($schedule, $now, $startTime, $user, $isNightShift);
         }
@@ -190,7 +190,11 @@ class TestCommand extends Command
         ]);
     }
 
-    private function getTimesheet($employeeId, Carbon $now, $isNightShift = false): Timesheets | null
+    private function validateClockIn($employeeId, $now, $isNightShift)
+    {
+    }
+
+    private function getTimesheet($employeeId, Carbon $now, $isNightShift = false): Timesheets|null
     {
         $yesterday = $now->copy()->subDay();
         $query = Timesheets::where('employeeId', $employeeId)
@@ -199,8 +203,12 @@ class TestCommand extends Command
                     $query->whereBetween('clockIn', [$yesterday->toDateString(), $now->toDateString()])
                         ->whereNull('clockOut')
                         ->where(function ($query) use ($now) {
-                            $query->whereRaw('TIMESTAMPDIFF(HOUR, clockIn, ?) <= ?', [$now, 9])
-                                ->orWhereDate('clockIn', $now->toDateString());
+                            $query->whereRaw('TIMESTAMPDIFF(HOUR, clockIn, ?) <= ?', [$now, TimesheetConstant::WORK_HOURS])
+                                ->orWhereDate('clockIn', $now->toDateString())
+                                ->orWhere(function ($query) use ($now) {
+                                    $query->whereRaw('TIMESTAMPDIFF(HOUR, clockOut, ?) <= ?', [$now, TimesheetConstant::WORK_HOURS])
+                                        ->orWhereDate('clockOut', $now->toDateString());
+                                });
                         });
                 } else {
                     // Check for normal day shifts
@@ -213,11 +221,8 @@ class TestCommand extends Command
                         });
                 }
             });
-        // dd($query->first());
         return $query->exists() ? $query->latest()->first() : null;
     }
-
-
 
     private function getSchedule($user): Schedule | Shift
     {
