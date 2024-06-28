@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Web\Attendance;
 
 use App\Algorithms\Attendance\TimesheetAlgo;
 use App\Http\Controllers\Controller;
-use App\Jobs\GenerateEmployeeAttendanceJob;
+use App\Jobs\Attendance\GenerateAttendanceEmployeeJob;
 use App\Models\Attendance\Timesheets;
-use App\Models\Employee\Employee;
 use App\Services\PDF\Attendance\TimesheetPDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +27,7 @@ class TimesheetController extends Controller
     public function generateExcel(Request $request)
     {
         $user = Auth::user();
-        GenerateEmployeeAttendanceJob::dispatch($request->fromDate, $request->toDate, $user->email);
+        GenerateAttendanceEmployeeJob::dispatch($request->fromDate, $request->toDate, $user->email);
 
         return success(internalMsg: "Excel will be sent to your email");
     }

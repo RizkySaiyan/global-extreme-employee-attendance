@@ -8,7 +8,6 @@ use App\Http\Requests\Attendance\PublicHolidayRequest;
 use App\Models\Attendance\PublicHoliday;
 use App\Parser\Attendance\PublicHolidayParser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class PublicHolidayController extends Controller
 {

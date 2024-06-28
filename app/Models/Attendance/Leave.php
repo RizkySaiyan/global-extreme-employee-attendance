@@ -31,6 +31,7 @@ class Leave extends BaseModel
     protected $parserClass = LeaveParser::class;
 
     /** SCOPES */
+
     public function scopeFilter($query, $request)
     {
         return $query->where(function ($query) use ($request) {
@@ -41,6 +42,7 @@ class Leave extends BaseModel
     }
 
     /** RELATIONSHIP */
+
     public function schedule()
     {
         return $this->morphMany(Schedule::class, 'schedule', 'reference', 'referenceId');
@@ -52,6 +54,7 @@ class Leave extends BaseModel
     }
 
     /** STATIC FUNCTION */
+
     public static function getEmployeeLeaves($employeeId)
     {
         $year = now()->year;

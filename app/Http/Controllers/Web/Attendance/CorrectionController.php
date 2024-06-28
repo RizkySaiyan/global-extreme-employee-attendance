@@ -6,7 +6,6 @@ use App\Algorithms\Attendance\CorrectionAlgo;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Attendance\CorrectionRequest;
 use App\Models\Attendance\Correction;
-use App\Parser\Attendance\CorrectionParser;
 use Illuminate\Http\Request;
 
 class CorrectionController extends Controller

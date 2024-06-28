@@ -63,45 +63,6 @@ class LeaveAlgo
         }
     }
 
-    private function validateRequest($request)
-    {
-        $fromDate = Carbon::createFromDate($request->fromDate);
-        $toDate = Carbon::createFromDate($request->toDate);
-
-        $count = $fromDate->diffInDays($toDate);
-        if ($count >= LeaveConstant::LEAVE_REQUEST_LIMIT) {
-            errLeaveMoreThanAWeek();
-        }
-
-        $leaves = Leave::where('employeeId', $request->employeeId)
-            ->whereDate('fromDate', '<=', $request->toDate)
-            ->whereDate('toDate', '>=', $request->fromDate)->first();
-        if ($leaves) {
-            errLeaveExist("Assigned dates, [fromDate : $leaves->fromDate, toDate : $leaves->toDate]");
-        }
-    }
-
-    /** FUNCTION */
-    private function saveLeave($request, $user)
-    {
-        $form = $request->all();
-
-        $form['employeeId'] = $request->employeeId;
-        $form['status'] = StatusType::PENDING_ID;
-
-        $createdBy = [
-            'createdBy' => $user->employeeId,
-            'createdByName' => $user->employee->name
-        ];
-
-        if ($user->role == EmployeeUserRole::ADMIN_ID) {
-            $form['approvedBy'] = $user->employeeId;
-            $form['approvedByName'] = $user->employee->name;
-            $form['status'] = StatusType::APPROVED_ID;
-        }
-        $this->leave = Leave::create($form + $createdBy);
-    }
-
     public function delete()
     {
         try {
@@ -122,6 +83,46 @@ class LeaveAlgo
             return success();
         } catch (\Exception $exception) {
             exception($exception);
+        }
+    }
+
+    /** FUNCTION */
+
+    private function saveLeave($request, $user)
+    {
+        $form = $request->all();
+
+        $form['employeeId'] = $request->employeeId;
+        $form['status'] = StatusType::PENDING_ID;
+
+        $createdBy = [
+            'createdBy' => $user->employeeId,
+            'createdByName' => $user->employee->name
+        ];
+
+        if ($user->role == EmployeeUserRole::ADMIN_ID) {
+            $form['approvedBy'] = $user->employeeId;
+            $form['approvedByName'] = $user->employee->name;
+            $form['status'] = StatusType::APPROVED_ID;
+        }
+        $this->leave = Leave::create($form + $createdBy);
+    }
+
+    private function validateRequest($request)
+    {
+        $fromDate = Carbon::createFromDate($request->fromDate);
+        $toDate = Carbon::createFromDate($request->toDate);
+
+        $count = $fromDate->diffInDays($toDate);
+        if ($count >= LeaveConstant::LEAVE_REQUEST_LIMIT) {
+            errLeaveMoreThanAWeek();
+        }
+
+        $leaves = Leave::where('employeeId', $request->employeeId)
+            ->whereDate('fromDate', '<=', $request->toDate)
+            ->whereDate('toDate', '>=', $request->fromDate)->first();
+        if ($leaves) {
+            errLeaveExist("Assigned dates, [fromDate : $leaves->fromDate, toDate : $leaves->toDate]");
         }
     }
 

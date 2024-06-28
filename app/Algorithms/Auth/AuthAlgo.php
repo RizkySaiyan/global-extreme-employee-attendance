@@ -23,11 +23,17 @@ class AuthAlgo
                     errInvalidCredentials();
                 }
                 $user = EmployeeUser::where('email', $credentials['email'])->first();
-                $data = ['employeeId' => $user->employeeId, 'employeeName' => $user->employee->name, 'email' => $user->email, 'role' => EmployeeUserRole::display($user->role), 'accessToken' => $token, 'expiresIn' => auth()->factory()->getTtl() * 60,];
+                $data = [
+                    'employeeId' => $user->employeeId,
+                    'employeeName' => $user->employee->name,
+                    'email' => $user->email,
+                    'role' => EmployeeUserRole::display($user->role),
+                    'accessToken' => $token,
+                    'expiresIn' => auth()->factory()->getTtl() * 60,
+                ];
                 return $data;
             });
             return success($tokenPair);
-
         } catch (Exception $exception) {
             exception($exception);
         }

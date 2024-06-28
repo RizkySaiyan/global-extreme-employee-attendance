@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Attendance;
 
 use App\Services\Constant\Path\Path;
 use App\Services\Excel\TimesheetsExcel;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
-class GenerateEmployeeAttendanceJob implements ShouldQueue
+class GenerateAttendanceEmployeeJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -35,7 +35,7 @@ class GenerateEmployeeAttendanceJob implements ShouldQueue
         $fullFilePath = storage_path('app/' . $filePath);
 
         // Send email with the file attached
-        Mail::send([], [], function ($message) use ($fullFilePath) {
+        Mail::send('emails.default', [], function ($message) use ($fullFilePath) {
             $message->to($this->email)
                 ->subject("Your timesheet")
                 ->attach($fullFilePath, [

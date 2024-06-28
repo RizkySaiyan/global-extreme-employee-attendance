@@ -31,9 +31,11 @@ class EmployeeUser extends User implements JWTSubject
     ];
 
     // Add any additional properties or methods you need for your User model
-    
+
     /** RELATIONSHIP */
-    public function employee(){
+
+    public function employee()
+    {
         return $this->belongsTo(Employee::class, 'employeeId');
     }
 

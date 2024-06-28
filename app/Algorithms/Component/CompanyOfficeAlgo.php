@@ -2,13 +2,9 @@
 
 namespace App\Algorithms\Component;
 
-use App\Models\Component\CompanyOffice;
 use App\Models\Component\CompanyOfficeDepartment;
-use App\Models\Component\Department;
 use App\Parser\Component\CompanyOfficeParser;
-use App\Parser\Employee\EmployeeParser;
 use App\Services\Constant\Activity\ActivityAction;
-use App\Services\Constant\Activity\ActivityType;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,11 +18,13 @@ class CompanyOfficeAlgo
         try {
             $mapDepartment = DB::transaction(function () use ($model, $request) {
                 foreach ($request->departmentIds as $departmentId) {
-                    $map = CompanyOfficeDepartment::updateOrCreate(['companyOfficeId' => $model->id, 'departmentId' => $departmentId], 
-                    ['companyOfficeId' => $model->id, 'departmentId' => $departmentId]);
+                    $map = CompanyOfficeDepartment::updateOrCreate(
+                        ['companyOfficeId' => $model->id, 'departmentId' => $departmentId],
+                        ['companyOfficeId' => $model->id, 'departmentId' => $departmentId]
+                    );
                 }
                 $map->setActivityPropertyAttributes(ActivityAction::CREATE)
-                ->saveActivity("Mapping company office with department $map->id, companyId : [$map->companyOfficeId]");
+                    ->saveActivity("Mapping company office with department $map->id, companyId : [$map->companyOfficeId]");
 
                 return $map;
             });

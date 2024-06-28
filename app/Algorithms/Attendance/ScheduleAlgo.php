@@ -5,10 +5,8 @@ namespace App\Algorithms\Attendance;
 use App\Models\Attendance\PublicHoliday;
 use App\Models\Attendance\Schedule;
 use App\Models\Attendance\Shift;
-use App\Models\Attendance\Traits\SaveSchedule;
 use App\Services\Constant\Activity\ActivityAction;
 use App\Services\Constant\Attendance\AttendanceType;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ScheduleAlgo
@@ -40,7 +38,24 @@ class ScheduleAlgo
         }
     }
 
+    public function delete()
+    {
+        try {
+            DB::transaction(function () {
+                $this->schedule->setOldActivityPropertyAttributes(ActivityAction::DELETE);
+
+                $this->schedule->delete();
+
+                $this->schedule->setActivityPropertyAttributes(ActivityAction::DELETE)
+                    ->saveActivity("Delete schedule {$this->schedule->id}, [{$this->schedule->date}]");
+            });
+        } catch (\Exception $exception) {
+            exception($exception);
+        }
+    }
+
     /** FUNCTION */
+
     public function assignSchedule($request)
     {
         $scheduleable = null;
@@ -63,22 +78,15 @@ class ScheduleAlgo
                 errAttendanceTypeNotFound();
                 break;
         }
-        return Schedule::saveSchedule($scheduleable, $request);
-    }
-
-    public function delete()
-    {
-        try {
-            DB::transaction(function () {
-                $this->schedule->setOldActivityPropertyAttributes(ActivityAction::DELETE);
-
-                $this->schedule->delete();
-
-                $this->schedule->setActivityPropertyAttributes(ActivityAction::DELETE)
-                    ->saveActivity("Delete schedule {$this->schedule->id}, [{$this->schedule->date}]");
-            });
-        } catch (\Exception $exception) {
-            exception($exception);
-        }
+        return Schedule::updateOrCreate([
+            'employeeId' => $request->employeeId,
+            'date' => $request->date
+        ], [
+            'employeeId' => $request->employeeId,
+            'date' => $request->date,
+            'type' => $request->type,
+            'reference' => $scheduleable ? get_class($scheduleable) : null,
+            'referenceId' => $scheduleable ? $scheduleable->id : null
+        ]);
     }
 }

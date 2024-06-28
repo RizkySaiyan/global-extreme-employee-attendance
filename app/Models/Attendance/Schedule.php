@@ -38,6 +38,7 @@ class Schedule extends BaseModel
     }
 
     /** SCOPES */
+
     public function scopeFilter($query, $request)
     {
         return $query->where(function ($query) use ($request) {
@@ -49,6 +50,7 @@ class Schedule extends BaseModel
     }
 
     /** STATIC FUNCTION */
+
     public static function setWeeklyDayOff($year, $employee, $user)
     {
         $sundays = [];

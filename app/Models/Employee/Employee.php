@@ -7,13 +7,10 @@ use App\Models\BaseModel;
 use App\Models\Component\CompanyOffice;
 use App\Models\Component\Department;
 use App\Models\Employee\Traits\HasActivityEmployeeProperty;
-use App\Models\Scopes\EmployeeNonResign;
+use App\Models\Scopes\Employee\EmployeeNonResign;
 use App\Parser\Employee\EmployeeParser;
-use App\Services\Constant\Employee\EmployeeUserRole;
-use GlobalXtreme\Parser\Trait\HasParser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class Employee extends BaseModel
 {
@@ -33,6 +30,7 @@ class Employee extends BaseModel
     public $parserClass = EmployeeParser::class;
 
     /** SCOPES */
+
     public function scopeFilter($query, $request)
     {
 
@@ -51,8 +49,8 @@ class Employee extends BaseModel
         });
     }
 
-
     /** RELATIONSHIPS */
+
     public function companyOffice()
     {
         return $this->belongsTo(CompanyOffice::class, 'companyOfficeId');
@@ -83,8 +81,8 @@ class Employee extends BaseModel
         return $this->hasMany(Schedule::class, 'employeeId');
     }
 
-
     /** FUNCTIONS */
+
     public function delete()
     {
         if ($this->siblings) {
@@ -110,7 +108,6 @@ class Employee extends BaseModel
 
     public function saveSiblings($attributes)
     {
-
         $user = Auth::user();
         $createdBy = [
             'createdBy' => $user?->id,
@@ -133,6 +130,7 @@ class Employee extends BaseModel
     }
 
     /** STATIC FUNCTIONS */
+
     protected static function booted()
     {
         static::addGlobalScope(new EmployeeNonResign);

@@ -3,11 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Jobs\Attendance\SetWeeklyDayOffJob;
-use App\Jobs\SetWeeklyDayOffEmployeeJob;
-use App\Models\Attendance\Schedule;
-use App\Models\Employee\Employee;
-use App\Services\Constant\Attendance\AttendanceType;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SetWeeklyDayOffCommand extends Command

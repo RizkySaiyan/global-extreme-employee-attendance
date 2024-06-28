@@ -5,7 +5,6 @@ namespace App\Algorithms\Attendance;
 use App\Http\Requests\Attendance\CorrectionRequest;
 use App\Models\Attendance\Correction;
 use App\Services\Constant\Activity\ActivityAction;
-use App\Services\Constant\Attendance\AttendanceType;
 use App\Services\Constant\Attendance\StatusType;
 use App\Services\Constant\Attendance\TimesheetStatus;
 use Carbon\Carbon;
@@ -33,7 +32,9 @@ class CorrectionAlgo
                     'clockIn' => $request->clockIn,
                     'clockOut' => $request->clockOut,
                     'timesheetId' => $request->timesheetId,
-                    'status' => StatusType::PENDING_ID
+                    'status' => StatusType::PENDING_ID,
+                    'createdBy' => $user->employeeId,
+                    'createdByName' => $user->employee->name
                 ]);
 
                 $this->corrections->setActivityPropertyAttributes(ActivityAction::CREATE)
@@ -74,6 +75,7 @@ class CorrectionAlgo
                 if ($clockOut->lt($clockIn)) {
                     $clockOut->addDay();
                 }
+
                 $this->corrections->timesheet()->create([
                     'shiftId' => $this->corrections->timesheet->shiftId,
                     'employeeId' => $this->corrections->employeeId,
