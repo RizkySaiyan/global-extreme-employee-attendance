@@ -26,6 +26,6 @@ class TestCronServer extends Command
      */
     public function handle()
     {
-        $this->info('Test Cron');
+        Log::info('Test Cron ' . now());
     }
 }
