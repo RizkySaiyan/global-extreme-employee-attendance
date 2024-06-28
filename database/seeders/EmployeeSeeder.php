@@ -16,7 +16,7 @@ class EmployeeSeeder extends Seeder
     public function run(): void
     {
         Employee::factory()
-            ->count(100)
+            ->count(12)
             ->has(EmployeeUser::factory()->count(1), 'user')
             ->has(EmployeeSibling::factory()->count(2), 'siblings')
             ->create();
