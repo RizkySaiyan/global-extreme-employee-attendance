@@ -27,11 +27,6 @@ class LeaveAlgo
                 $user = Auth::user();
 
                 $this->validateRequest($request);
-                $totalLeaves = Leave::getEmployeeLeaves($request->employeeId);
-
-                if ($totalLeaves == LeaveConstant::LEAVE_BALANCE) {
-                    errLeaveBalance();
-                }
 
                 $this->saveLeave($request, $user);
                 if (!$this->leave) {
@@ -70,7 +65,7 @@ class LeaveAlgo
             DB::transaction(function () {
                 $this->leave->setOldActivityPropertyAttributes(ActivityAction::DELETE);
 
-                if ($this->leave->createdAt->diffInMonths(now()) >= 1) {
+                if ($this->leave->createdAt->diffInMonths(now()) >= LeaveConstant::LEAVE_DELETE_DURATION) {
                     errLeaveDelete();
                 }
 
@@ -116,6 +111,11 @@ class LeaveAlgo
         $count = $fromDate->diffInDays($toDate);
         if ($count >= LeaveConstant::LEAVE_REQUEST_LIMIT) {
             errLeaveMoreThanAWeek();
+        }
+
+        $totalLeaves = Leave::getEmployeeLeaves($request->employeeId);
+        if (($totalLeaves + $count) > LeaveConstant::LEAVE_BALANCE) {
+            errLeaveBalance();
         }
 
         $leaves = Leave::where('employeeId', $request->employeeId)

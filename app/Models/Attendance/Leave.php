@@ -59,20 +59,20 @@ class Leave extends BaseModel
     {
         $year = now()->year;
 
-        $leave = self::where('employeeId', $employeeId)
+        $leaves = self::where('employeeId', $employeeId)
             ->where('status', StatusType::APPROVED_ID)
             ->whereYear('fromDate', $year)
             ->whereYear('toDate', $year)
-            ->pluck('toDate', 'fromDate');
+            ->get(['fromDate', 'toDate']);
 
         $totalLeaves = 0;
-        $leave->each(function ($endDate, $startDate) use (&$totalLeaves) {
-            $start = Carbon::parse($startDate);
-            $end = Carbon::parse($endDate);
-
+        foreach ($leaves as $leave) {
+            $start = Carbon::parse($leave->fromDate);
+            $end = Carbon::parse($leave->toDate);
             $days = $start->diffInDays($end) + 1;
             $totalLeaves += $days;
-        });
+        }
+
         return $totalLeaves;
     }
 }

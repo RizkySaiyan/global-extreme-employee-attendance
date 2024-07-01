@@ -4,6 +4,7 @@ namespace App\Algorithms\Employee;
 
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\ResetPasswordRequest;
+use App\Jobs\Employee\DeleteEmployeeAttendanceJob;
 use App\Jobs\Employee\SetNewEmployeeScheduleJob;
 use App\Models\Employee\Employee;
 use App\Models\Employee\EmployeeUser;
@@ -47,7 +48,7 @@ class EmployeeAlgo
                 if (!$employeeUser) {
                     errEmployeeUserSave();
                 }
-                //activate later
+
                 SetNewEmployeeScheduleJob::dispatch(now()->year, $this->employee, $user);
 
                 $this->employee->setActivityPropertyAttributes(ActivityAction::CREATE)
@@ -96,8 +97,7 @@ class EmployeeAlgo
             DB::transaction(function () {
                 $this->employee->setOldActivityPropertyAttributes(ActivityAction::DELETE);
 
-                // activate when employee has attendance
-                Delet::dispatch($this->employee);
+                DeleteEmployeeAttendanceJob::dispatch($this->employee);
 
                 $this->employee->delete();
 
