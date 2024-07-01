@@ -3,6 +3,7 @@
 namespace App\Algorithms\Component;
 
 use App\Models\Component\CompanyOfficeDepartment;
+use App\Models\Component\Department;
 use App\Parser\Component\CompanyOfficeParser;
 use App\Services\Constant\Activity\ActivityAction;
 use Exception;
@@ -39,8 +40,18 @@ class CompanyOfficeAlgo
     {
         try {
             $companyOfficeDepartment = $model->officeDepartments;
+            $departments = Department::all();
 
-            return success(CompanyOfficeParser::departmentMap($companyOfficeDepartment));
+            $existingIds = $companyOfficeDepartment->pluck('id')->toArray();
+            $data = $departments->map(function ($department) use ($existingIds) {
+                return [
+                    'assigned' => !empty($existingIds) && in_array($department->id, $existingIds),
+                    'id' => $department->id,
+                    'name' => $department->name
+                ];
+            })->toArray();
+
+            return success($data);
         } catch (Exception $exception) {
             exception($exception);
         }

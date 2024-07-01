@@ -19,27 +19,9 @@ class CompanyOfficeParser extends BaseParser
         }
 
         return [
-            'id'=>$data->id,
-            'code'=> $data->code,
-            'name'=> $data->name,
+            'id' => $data->id,
+            'code' => $data->code,
+            'name' => $data->name,
         ];
-    }
-
-    public static function departmentMap($collections){
-
-        if(!$collections || count($collections) == 0){
-            return null;
-        }
-
-        $departments = Department::all();
-        $existingIds = $collections->pluck('id')->toArray();
-        $data = $departments->map(function ($department) use($existingIds){
-            return [
-                'assigned' => in_array($department->id, $existingIds),
-                'id' => $department->id,
-                'name' => $department->name
-            ];
-        })->toArray();
-        return $data;
     }
 }
