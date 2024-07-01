@@ -70,7 +70,23 @@ class EmployeeParser extends BaseParser
             'createdByName' => $data->createdByName,
             'companyOffice' => self::companyOfficeIdName($data->companyOffice),
             'department' => self::departmentIdName($data->department),
+            'resign' => $data->resign ? static::resign($data->resign) : null,
             'siblings' => static::siblings($data['siblings'])
+        ];
+    }
+
+    private static function resign($data)
+    {
+
+        if (!$data) {
+            return null;
+        }
+
+        return [
+            'id' => $data->id,
+            'date' => $data->date,
+            'reason' => $data->reason,
+            'file' => Storage::url($data->file)
         ];
     }
 
