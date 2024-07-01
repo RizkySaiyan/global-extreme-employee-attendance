@@ -3,6 +3,7 @@
 namespace App\Models\Employee;
 
 use App\Models\Attendance\Schedule;
+use App\Models\Attendance\Timesheets;
 use App\Models\BaseModel;
 use App\Models\Component\CompanyOffice;
 use App\Models\Component\Department;
@@ -79,6 +80,11 @@ class Employee extends BaseModel
     public function schedules()
     {
         return $this->hasMany(Schedule::class, 'employeeId');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Timesheets::class, 'employeeId');
     }
 
     /** FUNCTIONS */
