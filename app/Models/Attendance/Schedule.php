@@ -69,8 +69,9 @@ class Schedule extends BaseModel
             $query->where('id', $employee->id);
         }
 
-        $employees = $query->whereDoesntHave('schedules', function ($query) {
-            $query->where('type', AttendanceType::WEEKLY_DAY_OFF_ID);
+        $employees = $query->whereDoesntHave('schedules', function ($query) use ($year) {
+            $query->where('type', AttendanceType::WEEKLY_DAY_OFF_ID)
+                ->whereYear('date', $year);
         })->get();
 
         foreach ($employees as $employee) {
