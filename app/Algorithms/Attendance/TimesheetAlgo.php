@@ -35,7 +35,7 @@ class TimesheetAlgo
             return $this->clockIn($schedule, $now, $startTime, $user);
         }
         if ($this->isWithinClockOutLimit($startTime, $endTime, $now)) {
-            return $this->clockOut($schedule, $now, $startTime, $endTime, $user);
+            return $this->clockOut($schedule, $now, $endTime, $user);
         }
 
         errAttendanceTimesheetCannotAttend("Your Schedule start : $startTime");
@@ -69,7 +69,6 @@ class TimesheetAlgo
     {
         try {
             DB::transaction(function () use ($schedule, $now, $endTime, $user) {
-
                 $this->timesheets = $this->checkTimesheetClockOut($user->employeeId, $now);
 
                 $minuteEarly = $endTime->gt($now) ? (int)$now->diffInMinutes($endTime) : 0;
