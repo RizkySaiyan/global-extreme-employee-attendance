@@ -1,9 +1,7 @@
 <?php
 
-namespace App\Console\Commands\Emplopyee;
+namespace App\Console\Commands\Employee;
 
-use App\Models\Employee\Employee;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class UpdateResignCommand extends Command

@@ -2,18 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\Employee\TestCronUpdateEmployeeJobs;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class TestCronServer extends Command
+class TestCronServerCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:test-cron-server';
+    protected $signature = 'app:test-cron-server-command';
 
     /**
      * The console command description.
@@ -27,6 +26,6 @@ class TestCronServer extends Command
      */
     public function handle()
     {
-        TestCronUpdateEmployeeJobs::dispatch();
+        Log::info('Test Cron ' . now());
     }
 }
