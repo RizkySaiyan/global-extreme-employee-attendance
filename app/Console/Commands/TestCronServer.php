@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\Employee\TestCronUpdateEmployeeJobs;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -26,6 +27,6 @@ class TestCronServer extends Command
      */
     public function handle()
     {
-        Log::info('Test Cron ' . now());
+        TestCronUpdateEmployeeJobs::dispatch();
     }
 }

@@ -5,6 +5,7 @@ namespace App\Parser\Employee;
 use App\Parser\Component\Trait\HasComponentIdName;
 use App\Services\Constant\Employee\EmployeeUserRole;
 use GlobalXtreme\Parser\BaseParser;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeParser extends BaseParser
 {
@@ -27,7 +28,7 @@ class EmployeeParser extends BaseParser
             'number' => $data->number,
             'phone' => $data->phone,
             'address' => $data->address,
-            'photo' => $data->photo,
+            'photo' => Storage::url($data->photo),
             'email' => $data?->user?->email,
             'fatherName' => $data->fatherName,
             'fatherEmail' => $data->fatherEmail,
@@ -55,7 +56,7 @@ class EmployeeParser extends BaseParser
             'number' => $data->number,
             'phone' => $data->phone,
             'address' => $data->address,
-            'photo' => $data->photo,
+            'photo' => Storage::url($data->photo),
             'email' => $data?->user?->email,
             'fatherName' => $data->fatherName,
             'fatherEmail' => $data->fatherEmail,

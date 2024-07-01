@@ -10,10 +10,10 @@ use App\Parser\Component\DepartmentParser;
 class Department extends BaseModel
 {
     use HasActivityComponentProperty;
-    
+
     protected $table = 'component_departments';
-    
-    protected $guarded = ['id'];    
+
+    protected $guarded = ['id'];
     protected $casts = [
         self::CREATED_AT => 'datetime',
         self::UPDATED_AT => 'datetime',
@@ -21,6 +21,10 @@ class Department extends BaseModel
     ];
 
 
+
+    /** FUNCTIONS */
+
+    //overide delete method to prevent delete department if it has companyOffice
     public function delete()
     {
         if ($this->companyOfficeDepartments()->count() > 0) {
@@ -30,10 +34,8 @@ class Department extends BaseModel
         return parent::delete();
     }
 
-    /** FUNCTIONS */
-
-    //overide delete method to prevent delete department if it has companyOffice
     /** RELATIONSHIPS */
+
     public function companyOfficeDepartments()
     {
         return $this->hasMany(CompanyOfficeDepartment::class, 'departmentId');
