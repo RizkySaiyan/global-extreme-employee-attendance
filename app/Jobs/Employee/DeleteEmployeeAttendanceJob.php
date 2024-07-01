@@ -16,7 +16,7 @@ class DeleteEmployeeAttendanceJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public int $employeeId)
+    public function __construct(public Employee $employee)
     {
         //
     }
@@ -26,9 +26,6 @@ class DeleteEmployeeAttendanceJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $employee = Employee::find($this->employeeId);
-        if ($employee) {
-            $employee->deleteAttendance();
-        }
+        $this->employee->deleteAttendance();
     }
 }
