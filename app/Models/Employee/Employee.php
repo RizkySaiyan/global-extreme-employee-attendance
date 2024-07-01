@@ -102,11 +102,6 @@ class Employee extends BaseModel
         return parent::delete();
     }
 
-    public function deleteAttendance()
-    {
-        $this->attendances()->delete();
-    }
-
     public function saveUser($attributes)
     {
         return $this->user()->updateOrCreate(['employeeId' => $this->id], $attributes);
