@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Attendance;
 
-use App\Jobs\Attendance\SetWeeklyDayOffJob;
+use App\Models\Attendance\Schedule;
 use Illuminate\Console\Command;
 
 class SetWeeklyDayOffCommand extends Command
@@ -28,6 +28,6 @@ class SetWeeklyDayOffCommand extends Command
     {
         //
         $year = now()->addYear()->year;
-        SetWeeklyDayOffJob::dispatch($year, null);
+        Schedule::setWeeklyDayOff($year, null, null);
     }
 }
