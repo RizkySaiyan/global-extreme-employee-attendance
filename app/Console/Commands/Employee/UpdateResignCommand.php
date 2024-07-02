@@ -28,7 +28,7 @@ class UpdateResignCommand extends Command
         $today = Carbon::today()->format('Y-m-d');
 
         Employee::whereHas('resign', function ($query) use ($today) {
-            $query->where('date', '<=', $today);
+            $query->where('date', $today);
         })->update(['isResign' => true]);
 
         $this->info('Employee resign status updated successfully.');

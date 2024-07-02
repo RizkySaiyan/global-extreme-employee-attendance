@@ -2,6 +2,7 @@
 
 namespace App\Models\Employee;
 
+use App\Models\Attendance\Leave;
 use App\Models\Attendance\Schedule;
 use App\Models\Attendance\Timesheets;
 use App\Models\BaseModel;
@@ -82,10 +83,16 @@ class Employee extends BaseModel
         return $this->hasMany(Schedule::class, 'employeeId');
     }
 
-    public function attendances()
+    public function timesheets()
     {
         return $this->hasMany(Timesheets::class, 'employeeId');
     }
+
+    public function leave()
+    {
+        return $this->hasMany(Leave::class, 'employeeId');
+    }
+
 
     /** FUNCTIONS */
 
@@ -97,6 +104,10 @@ class Employee extends BaseModel
 
         if ($this->user) {
             $this->user()->delete();
+        }
+
+        if ($this->resign) {
+            $this->resign()->delete();
         }
 
         return parent::delete();

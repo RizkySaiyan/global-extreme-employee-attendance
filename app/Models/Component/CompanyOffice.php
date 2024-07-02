@@ -10,9 +10,9 @@ use App\Parser\Component\CompanyOfficeParser;
 class CompanyOffice extends BaseModel
 {
     use HasActivityCompanyOfficeProperty;
-    
+
     protected $table = 'component_company_offices';
-    
+
     public $parserClass = CompanyOfficeParser::class;
 
     protected $guarded = ['id'];
@@ -27,6 +27,7 @@ class CompanyOffice extends BaseModel
         return $this->belongsToMany(Department::class, 'component_company_office_departments', 'companyOfficeId', 'departmentId');
     }
 
+    /** FUNCTION */
 
     public function delete()
     {
@@ -36,10 +37,8 @@ class CompanyOffice extends BaseModel
         return parent::delete();
     }
 
-    /** FUNCTION */
-
-    //override delete function to delete all record CompanyOfficeDepartment
     /** RELATIONSHIPS */
+
     public function officeDepartments()
     {
         return $this->hasMany(CompanyOfficeDepartment::class, 'companyOfficeId');

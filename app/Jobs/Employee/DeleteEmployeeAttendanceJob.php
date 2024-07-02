@@ -26,6 +26,8 @@ class DeleteEmployeeAttendanceJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->employee->attendances()->delete();
+        $this->employee->timesheets()->delete();
+        $this->employee->schedules()->delete();
+        $this->employee->leave()->delete();
     }
 }
