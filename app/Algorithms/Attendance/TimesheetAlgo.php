@@ -142,18 +142,23 @@ class TimesheetAlgo
 
     private function getSchedule($user): Schedule|Shift
     {
-        $schedule = Schedule::where('employeeId', $user->employeeId)
+        $findSchedule = Schedule::where('employeeId', $user->employeeId)
             ->whereDate('date', now()->format('Y-m-d'))
             ->where('reference', Shift::class)->first();
 
-        if (!$schedule) {
+        if (!$findSchedule) {
             $yesterday = now()->subDay();
-            $schedule = Schedule::where('employeeId', $user->employeeId)
+            $findSchedule = Schedule::where('employeeId', $user->employeeId)
                 ->whereDate('date', $yesterday)
                 ->where('reference', Shift::class)->first();
         }
 
-        return $schedule ? $schedule->scheduleable : Shift::find(TimesheetConstant::DEFAULT_SHIFT_ID);
+        $schedule = $findSchedule ? $findSchedule->schedulelable : Shift::find(TimesheetConstant::DEFAULT_SHIFT_ID);
+        if (!$schedule) {
+            errShiftNotFound();
+        }
+
+        return $schedule;
     }
 
     private function isWithinClockInLimit(Carbon $startTime, Carbon $now): bool
