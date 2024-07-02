@@ -7,6 +7,7 @@ use App\Http\Requests\Employee\ResetPasswordRequest;
 use App\Jobs\Employee\DeleteEmployeeAttendanceJob;
 use App\Jobs\Employee\SetNewEmployeeScheduleJob;
 use App\Models\Employee\Employee;
+use App\Models\Employee\EmployeeResignation;
 use App\Models\Employee\EmployeeUser;
 use App\Services\Constant\Activity\ActivityAction;
 use App\Services\Constant\Employee\EmployeeUserRole;
@@ -33,7 +34,7 @@ class EmployeeAlgo
             DB::transaction(function () use ($request) {
                 $user = Auth::user();
 
-                $this->employeeResignCheck($request);
+                $this->employeeResignDuration($request);
                 $this->validateEmail($request);
                 $this->employee = $this->saveEmployee($request);
 
@@ -116,9 +117,7 @@ class EmployeeAlgo
             DB::transaction(function () use ($request) {
                 $now = Carbon::now();
 
-                if ($this->employee->resign) {
-                    errEmployeeResignExist();
-                }
+                $this->employeeCheckResign();
 
                 if ($now->diffInMonths($request->date) < 1) {
                     errEmployeeResignRequest();
@@ -129,14 +128,11 @@ class EmployeeAlgo
                     'createdByName' => $this->employee->name
                 ];
 
-
-
                 if ($request->hasFile('file')) {
                     $file = $request->file('file');
                     $fileName = filename($file, 'employee');
                     $filePath = $file->storeAs(Path::EMPLOYEE_RESIGN, $fileName, 'public');
                 }
-
 
                 $this->employee->resign()->create([
                     'date' => $request->date,
@@ -207,6 +203,7 @@ class EmployeeAlgo
     }
 
     /** FUNCTIONS */
+
     private function saveEmployee(Request $request)
     {
         $user = Auth::user();
@@ -288,7 +285,7 @@ class EmployeeAlgo
             ->saveActivity("Reset employee password : {$user->employee->name} [{$user->employee->number}]");
     }
 
-    private function employeeResignCheck($request)
+    private function employeeResignDuration($request)
     {
         $employee = Employee::where('isResign', true)
             ->where('name', $request->name)
@@ -298,10 +295,21 @@ class EmployeeAlgo
 
         if ($employee) {
             $resign = $employee?->resign;
-            if ($resign && Carbon::parse($resign->date)->diffInYears(now()) > 1) {
+            if ($resign && Carbon::parse($resign->date)->diffInYears(now()) >= 1) {
                 $employee->user()->delete();
             }
-            errEmployeeResign("Employee resign is less than one year, update status resign!");
+            errEmployeeResign();
+        }
+    }
+
+    private function employeeCheckResign()
+    {
+        $resign = EmployeeResignation::where('employeeId', $this->employee->id)
+            ->whereDate('date', '>=',  now())
+            ->first();
+
+        if ($resign) {
+            errEmployeeResignExist();
         }
     }
 

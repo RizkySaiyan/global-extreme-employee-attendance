@@ -35,11 +35,11 @@ class GenerateAttendanceEmployeeJob implements ShouldQueue
         $fullFilePath = storage_path('app/' . $filePath);
 
         // Send email with the file attached
-        Mail::send('emails.default', [], function ($message) use ($fullFilePath) {
+        Mail::send('emails.timesheet_emails', [], function ($message) use ($fullFilePath) {
             $message->to($this->email)
                 ->subject("Your timesheet")
                 ->attach($fullFilePath, [
-                    'as' => "{{$this->fromDate}_{$this->toDate}.xlsx",
+                    'as' => "{Employee-Timesheet-{$this->fromDate}-{$this->toDate}.xlsx",
                     'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 ]);
         });
