@@ -281,16 +281,18 @@ class EmployeeAlgo
 
     private function employeeResignCheck($request)
     {
-        $existingUser = EmployeeUser::whereHas('employee', function ($query) use ($request) {
-            $query->where('name', $request->name);
-        })->where('email', $request->email)->first();
+        $employee = Employee::where('isResign', true)
+            ->where('name', $request->name)
+            ->whereHas('user', function ($query) use ($request) {
+                $query->where('email', $request->email);
+            })->first();
 
-        if ($existingUser) {
-            $resign = $existingUser->employee->resign;
-            if ($resign && Carbon::parse($resign->date)->diffInYears(now()) < 1) {
-                return errEmployeeResign();
+        if ($employee) {
+            $resign = $employee?->resign;
+            if ($resign && Carbon::parse($resign->date)->diffInYears(now()) > 1) {
+                $employee->user()->delete();
             }
-            $existingUser->delete();
+            return errEmployeeResign();
         }
     }
 
