@@ -114,8 +114,14 @@ class EmployeeAlgo
     {
         try {
             DB::transaction(function () use ($request) {
+                $now = Carbon::now();
+
                 if ($this->employee->resign) {
                     errEmployeeResignExist();
+                }
+
+                if ($now->diffInMonths($request->date) < 1) {
+                    errEmployeeResignRequest();
                 }
 
                 $createdBy = [
@@ -123,11 +129,14 @@ class EmployeeAlgo
                     'createdByName' => $this->employee->name
                 ];
 
+
+
                 if ($request->hasFile('file')) {
                     $file = $request->file('file');
                     $fileName = filename($file, 'employee');
                     $filePath = $file->storeAs(Path::EMPLOYEE_RESIGN, $fileName, 'public');
                 }
+
 
                 $this->employee->resign()->create([
                     'date' => $request->date,
@@ -187,7 +196,7 @@ class EmployeeAlgo
         try {
             DB::transaction(function () {
 
-                $this->employee->resign()->update([
+                $this->employee->update([
                     'isResign' => false
                 ]);
             });
@@ -292,7 +301,7 @@ class EmployeeAlgo
             if ($resign && Carbon::parse($resign->date)->diffInYears(now()) > 1) {
                 $employee->user()->delete();
             }
-            return errEmployeeResign();
+            errEmployeeResign("Employee resign is less than one year, update status resign!");
         }
     }
 

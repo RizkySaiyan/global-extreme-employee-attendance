@@ -17,7 +17,14 @@ if (!function_exists("errEmployeeResignExist")) {
 if (!function_exists("errEmployeeResign")) {
     function errEmployeeResign($internalMsg = "", $status = null)
     {
-        error(500, "Employee resign is less than one year, update status resign!", $internalMsg, $status);
+        error(400, "Employee resign is less than one year, update status resign!", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errEmployeeResignRequest")) {
+    function errEmployeeResignRequest($internalMsg = "", $status = null)
+    {
+        error(400, "Please, submit your resignation 1 month from now !", $internalMsg, $status);
     }
 }
 

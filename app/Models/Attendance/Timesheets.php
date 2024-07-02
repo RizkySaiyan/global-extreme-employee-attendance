@@ -42,6 +42,17 @@ class Timesheets extends BaseModel
         return $this->hasOne(Correction::class, 'timesheetId');
     }
 
+    /** FUNCTION */
+
+    public function delete()
+    {
+        if ($this->correction) {
+            $this->correction()->delete();
+        }
+
+        return parent::delete();
+    }
+
     /** SCOPES */
 
     public function scopeFilter($query, $request)
