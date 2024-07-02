@@ -27,7 +27,9 @@ class Department extends BaseModel
     //overide delete method to prevent delete department if it has companyOffice
     public function delete()
     {
-        if ($this->companyOfficeDepartments()->count() > 0) {
+        $this->load('companyOfficeDepartments');
+
+        if ($this->companyOfficeDepartments->isNotEmpty()) {
             errDepartmentDelete();
         }
 

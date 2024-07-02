@@ -6,6 +6,13 @@ if (!function_exists("errShiftNotFound")) {
     }
 }
 
+if (!function_exists("errShiftDelete")) {
+    function errShiftDelete($internalMsg = "", $status = null)
+    {
+        error(404, "Unable to delete shift!", $internalMsg, $status);
+    }
+}
+
 if (!function_exists("errAttendanceDateExist")) {
     function errAttendanceDateExist($internalMsg = "", $status = null)
     {
