@@ -14,7 +14,17 @@ class TimesheetController extends Controller
 {
     public function get(Request $request)
     {
-        $timesheets = Timesheets::filter($request)->getOrPaginate($request);
+        $timesheets = Timesheets::with('correction')->filter($request)->getOrPaginate($request);
+        return success($timesheets);
+    }
+
+    public function log(Request $request)
+    {
+        $timesheets = Timesheets::with('correction')
+            ->where('employeeId', $request->user()->employeeId)
+            ->ofDate('createdAt', $request->fromDate, $request->toDate)
+            ->get();
+
         return success($timesheets);
     }
 
