@@ -153,7 +153,7 @@ class TimesheetAlgo
                 ->where('reference', Shift::class)->first();
         }
 
-        $schedule = $findSchedule ? $findSchedule->schedulelable : Shift::find(TimesheetConstant::DEFAULT_SHIFT_ID);
+        $schedule = $findSchedule ? $findSchedule->scheduleable : Shift::find(TimesheetConstant::DEFAULT_SHIFT_ID);
         if (!$schedule) {
             errShiftNotFound();
         }
