@@ -52,10 +52,8 @@ class TimesheetParser extends BaseParser
                 'notes' => $data->correction->notes,
                 'clockIn' => $data->correction->clockIn,
                 'clockOut' => $data->correction->clockOut,
-
                 'status' => StatusType::display($data->correction->status),
-            ]
-                : null,
+            ] : null,
             'createdBy' => $data->createdByName
         ];
     }

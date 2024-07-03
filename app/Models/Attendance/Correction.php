@@ -33,6 +33,4 @@ class Correction extends BaseModel
     {
         return $this->belongsTo(Employee::class, 'employeeId');
     }
-
-    /** SCOPES */
 }
