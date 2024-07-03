@@ -74,7 +74,7 @@ class Employee extends BaseModel
 
     public function resign()
     {
-        return $this->hasOne(EmployeeResignation::class, 'employeeId');
+        return $this->hasOne(EmployeeResignation::class, 'employeeId')->latestOfMany();
     }
 
     public function user()
