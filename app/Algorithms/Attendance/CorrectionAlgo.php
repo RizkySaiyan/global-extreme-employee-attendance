@@ -25,10 +25,11 @@ class CorrectionAlgo
                 $user = Auth::user();
                 $employeeId = $request->has('employeeId') ? $request->employeeId : $user->employeeId;
 
+                $this->correctionCheck($request);
+
                 $this->corrections = Correction::create([
                     'employeeId' => $employeeId,
                     'date' => $request->date,
-                    'notes' => $request->notes,
                     'clockIn' => $request->clockIn,
                     'clockOut' => $request->clockOut,
                     'timesheetId' => $request->timesheetId,
@@ -46,11 +47,11 @@ class CorrectionAlgo
         }
     }
 
-    public function approves()
+    public function approves($request)
     {
         try {
 
-            DB::transaction(function () {
+            DB::transaction(function () use ($request) {
                 $user = Auth::user();
 
                 $this->corrections->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
@@ -62,7 +63,8 @@ class CorrectionAlgo
                 $this->corrections->update([
                     'approvedBy' => $user->employeeId,
                     'approvedByName' => $user->employee->name,
-                    'status' => StatusType::APPROVED_ID
+                    'status' => StatusType::APPROVED_ID,
+                    'notes' => $request->notes
                 ]);
 
                 $date = $this->corrections->date;
@@ -93,19 +95,24 @@ class CorrectionAlgo
         }
     }
 
-    public function disapproves()
+    public function disapproves($request)
     {
         try {
 
-            DB::transaction(function () {
+            DB::transaction(function () use ($request) {
                 $user = Auth::user();
 
                 $this->corrections->setOldActivityPropertyAttributes(ActivityAction::UPDATE);
 
+                if ($request->notes == '' || $request->notes == null) {
+                    errAttendanceCorrectionRequestNotes();
+                }
+
                 $this->corrections->update([
                     'approvedBy' => $user->employeeId,
                     'approvedByName' => $user->employee->name,
-                    'status' => StatusType::DISAPPROVES_ID
+                    'status' => StatusType::DISAPPROVES_ID,
+                    'notes' => $request->notes
                 ]);
 
                 $this->corrections->setActivityPropertyAttributes(ActivityAction::UPDATE)
@@ -114,6 +121,19 @@ class CorrectionAlgo
             return success($this->corrections->fresh());
         } catch (\Exception $exception) {
             exception($exception);
+        }
+    }
+
+
+    /** FUNCTION */
+
+    private function correctionCheck($request)
+    {
+        $corrections = Correction::where('timesheetId', $request->timesheetId)
+            ->first();
+
+        if ($corrections) {
+            errAttendanceCorrectionExist();
         }
     }
 }

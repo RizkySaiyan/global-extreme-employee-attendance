@@ -41,6 +41,20 @@ if (!function_exists("errAttendanceCorrectionAssessment")) {
     }
 }
 
+if (!function_exists("errAttendanceCorrectionRequestNotes")) {
+    function errAttendanceCorrectionRequestNotes($internalMsg = "", $status = null)
+    {
+        error(400, "Fill disapproval notes !", $internalMsg, $status);
+    }
+}
+
+if (!function_exists("errAttendanceCorrectionExist")) {
+    function errAttendanceCorrectionExist($internalMsg = "", $status = null)
+    {
+        error(400, "Correction already exist !", $internalMsg, $status);
+    }
+}
+
 if (!function_exists("errAttendanceTimesheetCannotAttend")) {
     function errAttendanceTimesheetCannotAttend($internalMsg = "", $status = null)
     {
