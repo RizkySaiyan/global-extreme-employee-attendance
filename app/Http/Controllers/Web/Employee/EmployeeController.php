@@ -9,6 +9,7 @@ use App\Http\Requests\Employee\EmployeeResignRequest;
 use App\Http\Requests\Employee\ResetPasswordRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Models\Employee\Employee;
+use App\Models\Scopes\Employee\EmployeeNonResign;
 use App\Parser\Employee\EmployeeParser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,10 @@ class EmployeeController extends Controller
     //
     public function get(Request $request)
     {
-        $employee = Employee::filter($request)->with('companyOffice')->getOrPaginate($request);
+        $employee = Employee::withoutGlobalScope(EmployeeNonResign::class)->filter($request)
+            ->with('companyOffice')
+            ->getOrPaginate($request);
+
 
         return success(EmployeeParser::briefs($employee));
     }
@@ -100,7 +104,7 @@ class EmployeeController extends Controller
 
     public function updateStatusResign($id)
     {
-        $employee = Employee::find($id);
+        $employee = Employee::find($id)->withoutGlobalScope(EmployeeNonResign::class);
         if (!$employee) {
             errEmployeeNotFound();
         }

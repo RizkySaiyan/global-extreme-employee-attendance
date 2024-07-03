@@ -48,6 +48,10 @@ class Employee extends BaseModel
                     $query->where('role', $request->role);
                 });
             }
+
+            if ($request->has('isResign')) {
+                $query->where('isResign', $request->isResign);
+            }
         });
     }
 
