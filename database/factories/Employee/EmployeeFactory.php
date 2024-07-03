@@ -19,7 +19,7 @@ class EmployeeFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'companyOfficeId' => 4,
+            'companyOfficeId' => 1,
             'departmentId' => 1,
             'number' => EmployeeNumber::generate(),
             'phone' => $this->faker->phoneNumber(),
