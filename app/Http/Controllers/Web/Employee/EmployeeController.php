@@ -104,7 +104,7 @@ class EmployeeController extends Controller
 
     public function updateStatusResign($id)
     {
-        $employee = Employee::find($id)->withoutGlobalScope(EmployeeNonResign::class);
+        $employee = Employee::withoutGlobalScope(EmployeeNonResign::class)->find($id);
         if (!$employee) {
             errEmployeeNotFound();
         }
