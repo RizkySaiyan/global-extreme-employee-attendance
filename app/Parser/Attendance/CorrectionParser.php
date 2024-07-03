@@ -2,6 +2,7 @@
 
 namespace App\Parser\Attendance;
 
+use App\Services\Constant\Attendance\StatusType;
 use App\Services\Constant\Attendance\TimesheetStatus;
 use GlobalXtreme\Parser\BaseParser;
 
@@ -25,11 +26,14 @@ class CorrectionParser extends BaseParser
             'clockIn' => $data->clockIn,
             'clockOut' => $data->clockOut,
             'createdAt' => $data->createdAt,
+            'status' => StatusType::display($data->status),
+            'approvedBy' => $data->approvedBy,
+            'approvedByName' => $data->approvedByName,
             'timesheet' => [
                 'id' => $data->timesheet->id,
                 'clockIn' => $data->timesheet->clockIn,
                 'clockOut' => $data->timesheet->clockOut,
-                'shift' => $data->timesheet->shift,
+                'shift' => $data->timesheet->shift->only('id', 'name', 'startTime', 'endTime'),
                 'status' => TimesheetStatus::display($data->timesheet->status),
             ]
         ];

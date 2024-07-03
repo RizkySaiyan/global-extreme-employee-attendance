@@ -6,6 +6,8 @@ use App\Algorithms\Attendance\TimesheetAlgo;
 use App\Http\Controllers\Controller;
 use App\Jobs\Attendance\GenerateAttendanceEmployeeJob;
 use App\Models\Attendance\Timesheets;
+use App\Parser\Attendance\TimesheetParser;
+use App\Services\Constant\Attendance\StatusType;
 use App\Services\PDF\Attendance\TimesheetPDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,8 +16,11 @@ class TimesheetController extends Controller
 {
     public function get(Request $request)
     {
-        $timesheets = Timesheets::with('correction')->filter($request)->getOrPaginate($request);
-        return success($timesheets);
+        $timesheets = Timesheets::whereDoesntHave('correction')
+            ->filter($request)
+            ->getOrPaginate($request);
+
+        return success(TimesheetParser::briefs($timesheets));
     }
 
     public function log(Request $request)

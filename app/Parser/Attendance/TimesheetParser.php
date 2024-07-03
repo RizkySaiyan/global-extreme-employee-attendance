@@ -35,12 +35,12 @@ class TimesheetParser extends BaseParser
             ],
             'clockIn' => [
                 'date' => $data->clockIn ?  $data->clockIn->format('d/m/y') : null,
-                'time' => $data->clockIn ?  $data->clockIn->format('H:i:s') : null,
+                'time' => $data->clockIn ?  $data->clockIn->format('H:i') : null,
                 'minuteLate' => $data->minuteLate
             ],
             'clockOut' => [
                 'date' => $data->clockOut ? $data->clockOut->format('d/m/y') : null,
-                'time' => $data->clockOut ? $data->clockOut->format('H:i:s') : null,
+                'time' => $data->clockOut ? $data->clockOut->format('H:i') : null,
                 'minuteEarly' => $data->minuteEarly
             ],
             'status' => [
@@ -54,6 +54,43 @@ class TimesheetParser extends BaseParser
                 'clockOut' => $data->correction->clockOut,
                 'status' => StatusType::display($data->correction->status),
             ] : null,
+            'createdBy' => $data->createdByName
+        ];
+    }
+
+    public static function brief($data)
+    {
+        if (!$data) {
+            return null;
+        }
+
+        return [
+            'id' => $data->id,
+            'employee' => [
+                'id' => $data->employee->id,
+                'name' => $data->employee->name,
+                'email' => $data->employee->user->email
+            ],
+            'shift' => [
+                'id' => $data->shift->id,
+                'name' => $data->shift->name,
+                'startTime' => $data->shift->startTime,
+                'endTime' => $data->shift->endTime
+            ],
+            'clockIn' => [
+                'date' => $data->clockIn ?  $data->clockIn->format('d/m/y') : null,
+                'time' => $data->clockIn ?  $data->clockIn->format('H:i:s') : null,
+                'minuteLate' => $data->minuteLate
+            ],
+            'clockOut' => [
+                'date' => $data->clockOut ? $data->clockOut->format('d/m/y') : null,
+                'time' => $data->clockOut ? $data->clockOut->format('H:i:s') : null,
+                'minuteEarly' => $data->minuteEarly
+            ],
+            'status' => [
+                'id' => $data->status,
+                'status' => TimesheetStatus::display($data->status)
+            ],
             'createdBy' => $data->createdByName
         ];
     }
