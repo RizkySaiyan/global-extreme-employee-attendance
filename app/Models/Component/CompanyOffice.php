@@ -4,7 +4,6 @@ namespace App\Models\Component;
 
 use App\Models\BaseModel;
 use App\Models\Component\Traits\HasActivityCompanyOfficeProperty;
-use App\Models\Component\Traits\HasActivityComponentProperty;
 use App\Parser\Component\CompanyOfficeParser;
 
 class CompanyOffice extends BaseModel
@@ -31,7 +30,6 @@ class CompanyOffice extends BaseModel
 
     public function delete()
     {
-
         $this->officeDepartments()->delete();
 
         return parent::delete();

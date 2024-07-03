@@ -4,8 +4,6 @@ namespace App\Models\Component;
 
 use App\Models\BaseModel;
 use App\Models\Component\Traits\HasActivityComponentProperty;
-use App\Parser\Component\CompanyOfficeParser;
-use App\Parser\Component\DepartmentParser;
 
 class Department extends BaseModel
 {
@@ -24,7 +22,6 @@ class Department extends BaseModel
 
     /** FUNCTIONS */
 
-    //overide delete method to prevent delete department if it has companyOffice
     public function delete()
     {
         $this->load('companyOfficeDepartments');

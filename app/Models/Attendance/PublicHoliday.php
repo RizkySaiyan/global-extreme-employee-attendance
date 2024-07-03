@@ -7,8 +7,6 @@ use App\Models\BaseModel;
 use App\Models\Employee\Employee;
 use App\Parser\Attendance\PublicHolidayParser;
 use App\Services\Constant\Attendance\AttendanceType;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 
 class PublicHoliday extends BaseModel
 {
@@ -90,6 +88,7 @@ class PublicHoliday extends BaseModel
     }
 
     /** STATIC FUNCTION */
+
     public static function setPublicHolidayNewEmployee($year, $employee, $user)
     {
         $holidays = PublicHoliday::whereYear('date', $year)->get();
