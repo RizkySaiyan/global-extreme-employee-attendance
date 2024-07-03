@@ -48,8 +48,6 @@
         </div>
         <div class="content">
             <h1>Employee Timesheet</h1>
-            <p>Dear employee,</p>
-            <p>Please find attached your timesheet for the period from {{ $fromDate }} to {{ $toDate }}.</p>
         </div>
         <div class="footer">
             <p>&copy; {{ date('Y') }} GlobalXtreme. All rights reserved.</p>
