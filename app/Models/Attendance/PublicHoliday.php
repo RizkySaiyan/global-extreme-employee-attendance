@@ -56,7 +56,7 @@ class PublicHoliday extends BaseModel
 
     public function delete()
     {
-        if ($this->schedule) {
+        if ($this->schedule->isNotEmpty()) {
             errPublicHolidayAssigned('Cannot delete');
         }
 

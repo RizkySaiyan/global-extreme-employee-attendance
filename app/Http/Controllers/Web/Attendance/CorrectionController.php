@@ -23,7 +23,7 @@ class CorrectionController extends Controller
         return $algo->create($request);
     }
 
-    public function approves($id)
+    public function approves(Request $request, $id)
     {
         $corrections = Correction::find($id);
         if (!$corrections) {
@@ -31,10 +31,10 @@ class CorrectionController extends Controller
         }
 
         $algo = new CorrectionAlgo($corrections);
-        return $algo->approves();
+        return $algo->approves($request);
     }
 
-    public function disapproves($id)
+    public function disapproves(Request $request, $id)
     {
         $corrections = Correction::find($id);
         if (!$corrections) {
@@ -42,6 +42,6 @@ class CorrectionController extends Controller
         }
 
         $algo = new CorrectionAlgo($corrections);
-        return $algo->disapproves();
+        return $algo->disapproves($request);
     }
 }
