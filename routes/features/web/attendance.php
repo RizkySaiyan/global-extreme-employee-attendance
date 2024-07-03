@@ -57,6 +57,7 @@ Route::prefix('attendances')->group(function () {
         });
         Route::middleware('role:admin,user')->group(function () {
             Route::get('', [TimesheetController::class, 'get']);
+            Route::get('/personal', [TimesheetController::class, 'log']);
             Route::post('/attend', [TimesheetController::class, 'attend']);
         });
     });

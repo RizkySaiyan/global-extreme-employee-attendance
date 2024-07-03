@@ -43,11 +43,19 @@ class TimesheetParser extends BaseParser
                 'time' => $data->clockOut ? $data->clockOut->format('H:i:s') : null,
                 'minuteEarly' => $data->minuteEarly
             ],
-
             'status' => [
                 'id' => $data->status,
                 'status' => TimesheetStatus::display($data->status)
             ],
+            'correction' => $data->correction ? [
+                'id' => $data->correction->id,
+                'notes' => $data->correction->notes,
+                'clockIn' => $data->correction->clockIn,
+                'clockOut' => $data->correction->clockOut,
+
+                'status' => StatusType::display($data->correction->status),
+            ]
+                : null,
             'createdBy' => $data->createdByName
         ];
     }
