@@ -604,6 +604,7 @@
                     <th>Clock Out</th>
                     <th>Status</th>
                 </tr>
+                @if($timesheets)
                 @foreach($timesheets as $timesheet)
                     <tr>
                         <td>{{ $timesheet['employee']['name'] }}</td>
@@ -613,6 +614,11 @@
                         <td>{{ $timesheet['status']['status'] }}</td>
                     </tr>
                 @endforeach
+            @else
+                <tr>
+                    <td colspan="5" style="text-align:center">No data available</td>
+                </tr>
+            @endif
             </table>
             <br>
         </div>
